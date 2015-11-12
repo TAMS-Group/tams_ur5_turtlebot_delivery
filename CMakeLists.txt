@@ -14,6 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   #moveit_ros_planning
 )
 
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -117,6 +120,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
+include_directories(${EIGEN_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(project15_manipulation
@@ -184,6 +188,7 @@ catkin_package(
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
+
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

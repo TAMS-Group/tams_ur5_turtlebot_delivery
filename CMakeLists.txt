@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   #actionlib
   #moveit_core
   #moveit_ros_planning
+  std_msgs
+  actionlib
 )
 
 find_package(cmake_modules REQUIRED)
@@ -120,7 +122,12 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(${EIGEN_INCLUDE_DIRS})
+include_directories(
+  ${EIGEN_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
+)
+
+
 
 ## Declare a C++ library
 # add_library(project15_manipulation
@@ -132,17 +139,31 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 ## either from message generation or dynamic reconfigure
 # add_dependencies(project15_manipulation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Declare a C++ executable
- add_executable(project15_manipulation_node src/planning_scene_ros_api_tutorial.cpp)
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(project15_manipulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(project15_manipulation_node src/planning_scene_ros_api_tutorial.cpp)
+ target_link_libraries(planning_scene_ros_api_tutorial
+   ${catkin_LIBRARIES}
+ )
+
+#add_dependencies(project15_manipulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(project15_manipulation_node
 #   ${catkin_LIBRARIES}
 # )
+
+
+
+
+# add_executable(talker src/talker.cpp)
+ #add_dependencies(talker pr2_generate_messages_cpp)
+ #target_link_libraries(talker
+ #  ${catkin_LIBRARIES}
+ #)
+
+
+
+
 
 #############
 ## Install ##

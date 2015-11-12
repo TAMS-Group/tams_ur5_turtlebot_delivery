@@ -5,7 +5,7 @@ project(project15_manipulation)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  #roscpp
+  roscpp
   rospy
   #std_msgs
   #move_base_msgs
@@ -129,7 +129,7 @@ catkin_package(
 # add_dependencies(project15_manipulation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(project15_manipulation_node src/project15_manipulation_node.cpp)
+ add_executable(project15_manipulation_node src/planning_scene_ros_api_tutorial.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

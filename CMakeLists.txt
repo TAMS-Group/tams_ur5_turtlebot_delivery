@@ -4,7 +4,15 @@ project(project15_manipulation)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  #roscpp
+  rospy
+  #std_msgs
+  #move_base_msgs
+  #actionlib
+  #moveit_core
+  #moveit_ros_planning
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

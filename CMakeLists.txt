@@ -7,7 +7,7 @@ project(project15_manipulation)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  #std_msgs
+  std_msgs
   #move_base_msgs
   #actionlib
   #moveit_core
@@ -140,8 +140,9 @@ include_directories(
 # add_dependencies(project15_manipulation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
-add_executable(project15_manipulation_node src/planning_scene_ros_api_tutorial.cpp)
- target_link_libraries(planning_scene_ros_api_tutorial
+add_executable(planning_scene_ros_api_tutorial src/planning_scene_ros_api_tutorial.cpp)
+
+target_link_libraries(planning_scene_ros_api_tutorial
    ${catkin_LIBRARIES}
  )
 

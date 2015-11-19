@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   #moveit_ros_planning
   std_msgs
   actionlib
+  geometric_shapes
 )
 
 find_package(cmake_modules REQUIRED)
@@ -140,9 +141,9 @@ include_directories(
 # add_dependencies(project15_manipulation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
-add_executable(planning_scene_ros_api_tutorial src/planning_scene_ros_api_tutorial.cpp)
+add_executable(planning_scene_setup src/planning_scene_setup.cpp)
 
-target_link_libraries(planning_scene_ros_api_tutorial
+target_link_libraries(planning_scene_setup
    ${catkin_LIBRARIES}
  )
 

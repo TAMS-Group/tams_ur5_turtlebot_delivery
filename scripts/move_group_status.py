@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 import sys
 import copy
 import rospy
@@ -43,40 +44,32 @@ def move_group_python_interface_tutorial():
                                       '/move_group/display_planned_path',
                                       moveit_msgs.msg.DisplayTrajectory)
 
-  
+  ## Wait for RVIZ to initialize. This sleep is ONLY to allow Rviz to come up.
+  print "============ Starting tutorial "
 
-  ## Planning to a Pose goal
-  ## ^^^^^^^^^^^^^^^^^^^^^^^
-  
-  
-  print "============ Generating plan 1"
-  pose_target = geometry_msgs.msg.Pose()
-  pose_target.orientation.w = 1.0
-  pose_target.position.x = 0.7
-  pose_target.position.y = 0.05
-  pose_target.position.z = 0.1
-  group.set_pose_target(pose_target)
+  ## Getting Basic Information
+  ## ^^^^^^^^^^^^^^^^^^^^^^^^^
+  ##
+  ## We can get the name of the reference frame for this robot
+  print "============ Reference frame: %s" % group.get_planning_frame()
 
-  print "planning plan1"
-  plan1 = group.plan()
-  
+  ## We can also print the name of the end-effector link for this group
+  print "============ Reference frame: %s" % group.get_end_effector_link()
 
-  print "============ Visualizing plan1"
-  display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+  ## We can get a list of all the groups in the robot
+  print "============ Robot Groups:"
+  print robot.get_group_names()
 
-  display_trajectory.trajectory_start = robot.get_current_state()
-  display_trajectory.trajectory.append(plan1)
-  display_trajectory_publisher.publish(display_trajectory);
-
-  print "============visulzing done"
-  print "execute plan1"
-  
-  
-  group.execute(plan1)
-  print "plan1 finished"
-  group.clear_pose_targets()
+  ## Sometimes for debugging it is useful to print the entire state of the
+  ## robot.
+  print "============ Printing robot state"
+  print robot.get_current_state()
+  print "============"
 
 
+
+
+  ## When finished shut down moveit_commander.
   moveit_commander.roscpp_shutdown()
 
   ## END_TUTORIAL

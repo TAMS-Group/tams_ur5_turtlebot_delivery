@@ -18,14 +18,20 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
    tf::TransformBroadcaster br;
   tf::Transform transform;
 
-  transform.setOrigin( tf::Vector3(msg->detections[0].pose.pose.position.x, 
+	transform.inverse();
+/*  transform.setOrigin( tf::Vector3(msg->detections[0].pose.pose.position.x, 
 	msg->detections[0].pose.pose.position.y, 
 	msg->detections[0].pose.pose.position.z) );
 
   tf::Quaternion q;
-  q.setRPY(0, 0, 0);
-  transform.setRotation(q);
-  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "camera"));
+  //q.setRPY(msg->detections[0].pose.pose.orientation.x, 
+//	msg->detections[0].pose.pose.orientation.y, 
+//	msg->detections[0].pose.pose.orientation.z);
+ q.setRPY(0,0,0);
+
+ transform.setRotation(q);
+*/
+  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/tag_0", "/camera_rgb_optical_frame"));
 }
 
 

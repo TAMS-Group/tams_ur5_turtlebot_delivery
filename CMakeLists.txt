@@ -8,11 +8,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  #move_base_msgs
-  #actionlib
-  #moveit_core
-  #moveit_ros_planning
-  std_msgs
+  move_base_msgs
+  moveit_core
+  moveit_ros_planning
   actionlib
   geometric_shapes
 )
@@ -215,3 +213,5 @@ target_link_libraries(planning_scene_setup
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+

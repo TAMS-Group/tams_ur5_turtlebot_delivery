@@ -85,9 +85,9 @@ int main(int argc, char **argv)
 // subtract the object from the world 
 // and to attach the object to the robot
   moveit_msgs::AttachedCollisionObject attached_object;
-  attached_object.link_name = "wrist2";
+  attached_object.link_name = "wrist_2_link";
   /* The header must contain a valid TF frame*/
-  attached_object.object.header.frame_id = "wrist2";
+  attached_object.object.header.frame_id = "wrist_2_link";
   /* The id of the object */
   attached_object.object.id = "box";
 
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
   /* First, define the DETACH object message*/
   moveit_msgs::AttachedCollisionObject detach_object;
   detach_object.object.id = "box";
-  detach_object.link_name = "wrist2";
+  detach_object.link_name = "wrist_2_link";
   detach_object.object.operation = attached_object.object.REMOVE;
 
 // Note how we make sure that the diff message contains no other

@@ -116,7 +116,7 @@ def move_group_python_interface_tutorial():
   pose_target.orientation.w = 1.0
   pose_target.position.x = 0.7
   pose_target.position.y = -0.05
-  pose_target.position.z = 1.1
+  pose_target.position.z = 0.1
   group.set_pose_target(pose_target)
 
   ## Now, we call the planner to compute the plan

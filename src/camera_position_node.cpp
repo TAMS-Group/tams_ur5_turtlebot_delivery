@@ -1,15 +1,31 @@
 #include <ros/ros.h>
-#include <tf/transform_listener.h>
+//#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 #include "std_msgs/String.h"
 //#include <apriltags_ros/apriltag_detector.h>
+#include <apriltags_ros/AprilTagDetectionArray.h>
 //#include <geometry_msgs/Twist.h>
 //#include <turtlesim/Spawn.h>
 
 
 
-void pose_detection(const std_msgs::String::ConstPtr& msg)
+//void pose_detection(const std_msgs::String::ConstPtr& msg)
+void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 {
-  ROS_INFO("I heard: [%s]", msg->detections[0].id.c_str());
+  ROS_INFO("I heard: [%f]", msg->detections[0].pose.pose.position.x);
+
+
+   tf::TransformBroadcaster br;
+  tf::Transform transform;
+
+  transform.setOrigin( tf::Vector3(msg->detections[0].pose.pose.position.x, 
+	msg->detections[0].pose.pose.position.y, 
+	msg->detections[0].pose.pose.position.z) );
+
+  tf::Quaternion q;
+  q.setRPY(0, 0, 0);
+  transform.setRotation(q);
+  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "camera"));
 }
 
 
@@ -58,7 +74,7 @@ int main(int argc, char** argv){
     //                              pow(transform.getOrigin().y(), 2));
     //turtle_vel.publish(vel_msg);
 
-  //  ros::spin();
+    ros::spin();
   //}
   return 0;
 };

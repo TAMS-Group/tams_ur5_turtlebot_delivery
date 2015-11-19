@@ -101,7 +101,7 @@ def move_group_python_interface_tutorial():
   
   
   
-   print "============ Visualizing plan2"
+  print "============ Visualizing plan2"
   display_trajectory = moveit_msgs.msg.DisplayTrajectory()
 
   display_trajectory.trajectory_start = robot.get_current_state()

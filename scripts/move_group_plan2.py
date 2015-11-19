@@ -96,7 +96,7 @@ def move_group_python_interface_tutorial():
   ## Note that we are just planning, not asking move_group
   ## to actually move the robot
   print "planning plan2"
-  plan1 = group.plan()
+  plan2 = group.plan()
   
   
   

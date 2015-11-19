@@ -83,18 +83,18 @@ def move_group_python_interface_tutorial():
 
  
  
-  print "============ Generating plan 2"
-  pose_target = geometry_msgs.msg.Pose()
-  pose_target.orientation.w = -1.0
-  pose_target.position.x = -0.7
-  pose_target.position.y = +0.05
-  pose_target.position.z = 0.1
-  group.set_pose_target(pose_target)
+ 
+  group.clear_pose_targets()
 
-  ## Now, we call the planner to compute the plan
-  ## and visualize it if successful
-  ## Note that we are just planning, not asking move_group
-  ## to actually move the robot
+  ## Then, we will get the current set of joint values for the group
+  group_variable_values = group.get_current_joint_values()
+  print "============ Joint values: ", group_variable_values
+
+  ## Now, let's modify one of the joints, plan to the new joint
+  ## space goal and visualize the plan
+  group_variable_values[0] = 1.0
+  group.set_joint_value_target(group_variable_values) 
+
   print "planning plan2"
   plan2 = group.plan()
   

@@ -31,7 +31,7 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 
  transform.setRotation(q);
 */
-  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/tag_0", "/camera_rgb_optical_frame"));
+  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/april_tag_ur5", "/camera_link"));
 }
 
 

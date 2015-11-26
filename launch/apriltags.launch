@@ -14,11 +14,11 @@
 
   <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
     <rosparam param="tag_descriptions">[
-      {id: 0, size: 0.14},
-      {id: 1, size: 0.14},
-      {id: 2, size: 0.14},
-      {id: 3, size: 0.14},
-      {id: 4, size: 0.14},
+      {id: 0, size: 0.166},
+      {id: 1, size: 0.166},
+      {id: 2, size: 0.166},
+      {id: 3, size: 0.166},
+      {id: 4, size: 0.166},
       {id: 5, size: 0.163513}]
     </rosparam>
   <remap from="/image_rect" to="/camera/rgb/image_raw"/>

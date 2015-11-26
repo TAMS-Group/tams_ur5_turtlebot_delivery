@@ -9,7 +9,10 @@ find_package(catkin REQUIRED COMPONENTS
 	rospy 
 	std_msgs 
 	genmsg
-	tf)
+	tf
+	sensor_msgs
+	cv_bridge
+	image_transport)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -188,6 +191,7 @@ catkin_package(
 add_executable(camera_position_node src/camera_position_node.cpp)
 target_link_libraries(camera_position_node ${catkin_LIBRARIES})
 
-
+add_executable(image_converter src/image_converter.cpp)
+target_link_libraries(image_converter ${catkin_LIBRARIES})
 
 

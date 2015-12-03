@@ -18,7 +18,7 @@
 
 int main(int argc, char **argv)
 {
-  ros::init (argc, argv, "planning_scene_ros_api_tutorial");
+  ros::init(argc, argv, "planning_scene_ros_api_tutorial");
   ros::AsyncSpinner spinner(1);
   spinner.start();
 

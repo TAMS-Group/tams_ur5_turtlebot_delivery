@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning
   actionlib
   geometric_shapes
+  moveit_ros_planning_interface
 )
 
 find_package(cmake_modules REQUIRED)
@@ -145,6 +146,11 @@ target_link_libraries(planning_scene_setup
    ${catkin_LIBRARIES}
  )
 
+add_executable(movegroup_plan1 src/movegroup_plan1.cpp)
+target_link_libraries(movegroup_plan1 ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+install(TARGETS movegroup_plan1 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+ 
 #add_dependencies(project15_manipulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against

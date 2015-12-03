@@ -15,10 +15,44 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
   ROS_INFO("I heard: [%f]", msg->detections[0].pose.pose.position.x);
 
 
-   tf::TransformBroadcaster br;
+  tf::TransformBroadcaster br;
   tf::Transform transform;
 
-	transform.inverse();
+  transform.setOrigin(tf::Vector3(0,0,0);
+
+  tf::TransformListener world_floor;
+  tf::TransformListener floor_wall;
+  tf::TransformListener wall_tag;
+  tf::TransformListener tag_camera;
+
+  ros::Rate rate(10.0);
+  while (node.ok()){
+    tf::StampedTransform transform;
+    try{
+      world_wall.lookupTransform("/world", "/floor",  ros::Time(0), transform);
+      floor_wall.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
+      wall_tag.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
+      tag_camera.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
+    }
+    catch (tf::TransformException ex){
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//	transform.inverse();
 /*  transform.setOrigin( tf::Vector3(msg->detections[0].pose.pose.position.x, 
 	msg->detections[0].pose.pose.position.y, 
 	msg->detections[0].pose.pose.position.z) );
@@ -31,7 +65,7 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 
  transform.setRotation(q);
 */
-  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/april_tag_ur5", "/camera_link"));
+  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/camera_link"));
 }
 
 

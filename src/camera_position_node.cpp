@@ -12,6 +12,7 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
   tf::StampedTransform transform;
   tf::StampedTransform tmpTransform;
   
+  tf::Quaternion q;
   transform.setOrigin(tf::Vector3(0,0,0));
 
   tf::TransformListener listener;
@@ -31,6 +32,8 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 
     listener.waitForTransform("/tag_0", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
     listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), tmpTransform);
+    q.setRPY(90,0,0);
+    tmpTransform.setRotation(q);
     transform *= tmpTransform;
 
   } catch (tf::TransformException ex) {

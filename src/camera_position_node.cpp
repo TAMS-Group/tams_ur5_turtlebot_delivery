@@ -25,22 +25,26 @@ tf::StampedTransform transform;
   //tf::TransformListener wall_tag;
   //tf::TransformListener tag_camera;
 
-  ros::Rate rate(10.0);
-  //while (node.ok()){
-  //while (1){
-    
-    try{
-	/*
+  ros::Rate rate(10.0); 
+ /*   try{
+	
       listener.lookupTransform("/world", "/floor",  ros::Time(0), transform);
-      listener.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
-      listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
-      listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
-*/
+  //    listener.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
+ //     listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
+//      listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
+
     }
     catch (tf::TransformException ex){
       ROS_ERROR("%s",ex.what());
       ros::Duration(1.0).sleep();
     }
+*/
+  try {
+    listener.waitForTransform("/world", "/floor", ros::Time(0), ros::Duration(10.0) );
+    listener.lookupTransform("/world", "/floor", ros::Time(0), transform);
+  } catch (tf::TransformException ex) {
+    ROS_ERROR("%s",ex.what());
+  }
 
 
 
@@ -61,7 +65,7 @@ tf::StampedTransform transform;
 
  transform.setRotation(q);
 */
-//  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/camera_link"));
+  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/camera_link"));
 }
 
 

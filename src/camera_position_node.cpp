@@ -12,7 +12,7 @@
 //void pose_detection(const std_msgs::String::ConstPtr& msg)
 void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 {
-  ROS_INFO("I heard: [%f]", msg->detections[0].pose.pose.position.x);
+  //ROS_INFO("I heard: [%f]", msg->detections[0].pose.pose.position.x);
 
 
   tf::TransformBroadcaster br;
@@ -29,9 +29,9 @@ tf::StampedTransform transform;
  /*   try{
 	
       listener.lookupTransform("/world", "/floor",  ros::Time(0), transform);
-  //    listener.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
- //     listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
-//      listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
+      listener.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
+      listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
+      listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
 
     }
     catch (tf::TransformException ex){
@@ -42,6 +42,18 @@ tf::StampedTransform transform;
   try {
     listener.waitForTransform("/world", "/floor", ros::Time(0), ros::Duration(10.0) );
     listener.lookupTransform("/world", "/floor", ros::Time(0), transform);
+    
+    listener.waitForTransform("/floor", "/wall", ros::Time(0), ros::Duration(10.0) );
+    listener.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
+    
+    listener.waitForTransform("/wall", "/april_tag_ur5", ros::Time(0), ros::Duration(10.0) );
+    listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
+
+    listener.waitForTransform("/tag_0", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
+    listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
+
+
+
   } catch (tf::TransformException ex) {
     ROS_ERROR("%s",ex.what());
   }

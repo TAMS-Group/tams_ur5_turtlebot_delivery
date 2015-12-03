@@ -47,6 +47,17 @@ public:
     // Draw an example circle on the video stream
     if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
       cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
+    
+    //cv_ptr->image.
+
+
+
+
+
+
+
+
+
 
     // Update GUI Window
     cv::imshow(OPENCV_WINDOW, cv_ptr->image);

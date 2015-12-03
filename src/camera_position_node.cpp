@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-//#include <tf/transform_listener.h>
+#include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
 #include "std_msgs/String.h"
 //#include <apriltags_ros/apriltag_detector.h>
@@ -16,35 +16,31 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 
 
   tf::TransformBroadcaster br;
-  tf::Transform transform;
+  //tf::Transform transform;
+tf::StampedTransform transform;
+  transform.setOrigin(tf::Vector3(0,0,0));
 
-  transform.setOrigin(tf::Vector3(0,0,0);
-
-  tf::TransformListener world_floor;
-  tf::TransformListener floor_wall;
-  tf::TransformListener wall_tag;
-  tf::TransformListener tag_camera;
+  tf::TransformListener listener;
+  //tf::TransformListener floor_wall;
+  //tf::TransformListener wall_tag;
+  //tf::TransformListener tag_camera;
 
   ros::Rate rate(10.0);
-  while (node.ok()){
-    tf::StampedTransform transform;
+  //while (node.ok()){
+  //while (1){
+    
     try{
-      world_wall.lookupTransform("/world", "/floor",  ros::Time(0), transform);
-      floor_wall.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
-      wall_tag.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
-      tag_camera.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
+	/*
+      listener.lookupTransform("/world", "/floor",  ros::Time(0), transform);
+      listener.lookupTransform("/floor", "/wall",  ros::Time(0), transform);
+      listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), transform);
+      listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), transform);
+*/
     }
     catch (tf::TransformException ex){
       ROS_ERROR("%s",ex.what());
       ros::Duration(1.0).sleep();
     }
-
-
-
-
-
-
-
 
 
 
@@ -65,7 +61,7 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
 
  transform.setRotation(q);
 */
-  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/camera_link"));
+//  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/camera_link"));
 }
 
 

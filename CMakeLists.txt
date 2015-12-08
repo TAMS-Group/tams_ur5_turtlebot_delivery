@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  move_base_msgs
+ # move_base_msgs
   moveit_core
   moveit_ros_planning
   actionlib
@@ -149,6 +149,10 @@ target_link_libraries(planning_scene_setup
 add_executable(movegroup_plan1 src/movegroup_plan1.cpp)
 target_link_libraries(movegroup_plan1 ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 install(TARGETS movegroup_plan1 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+add_executable(movegroup_plan_pos1_pos2 src/movegroup_plan_pos1_pos2.cpp)
+target_link_libraries(movegroup_plan_pos1_pos2 ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+install(TARGETS movegroup_plan_pos1_pos2 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
  
 #add_dependencies(project15_manipulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

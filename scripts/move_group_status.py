@@ -51,10 +51,12 @@ def move_group_python_interface_tutorial():
   ## ^^^^^^^^^^^^^^^^^^^^^^^^^
   ##
   ## We can get the name of the reference frame for this robot
-  print "============ Reference frame: %s" % group.get_planning_frame()
+  print "============ Reference planning frame: %s" % group.get_planning_frame()
 
   ## We can also print the name of the end-effector link for this group
-  print "============ Reference frame: %s" % group.get_end_effector_link()
+  print "============ Reference endeeffector frame: %s" % group.get_end_effector_link()
+
+  print "============ planning time: %s" % group.get_planning_time()
 
   ## We can get a list of all the groups in the robot
   print "============ Robot Groups:"

@@ -21,6 +21,9 @@
       {id: 4, size: 0.166},
       {id: 5, size: 0.163513}]
     </rosparam>
+  
+  <node pkg="project15_objectrecognition" type="camera_position_node" name="camera_position" output="screen">
+  
   <remap from="/image_rect" to="/camera/rgb/image_raw"/>
   <remap from="/camera_info" to="/camera/rgb/camera_info"/>
   </node>

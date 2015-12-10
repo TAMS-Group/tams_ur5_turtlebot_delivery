@@ -1,9 +1,24 @@
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui_c.h>
+
+#include <stdio.h>
+#include <iostream>
+#include "std_msgs/String.h"
+#include <sensor_msgs/image_encodings.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+//#include <cvaux.h>
+#include <math.h>
+//#include <cxcore.h>
+//#include <highgui.h>
 
 static const std::string OPENCV_WINDOW = "Image window";
 
@@ -15,6 +30,65 @@ class ImageConverter
   image_transport::Publisher image_pub_;
   
 public:
+//Bild binarisieren
+  cv_bridge::CvImagePtr binarize(cv_bridge::CvImagePtr& cv_ptr, int b, int g, int r, int v){
+     for(int y = 0; y < cv_ptr->image.rows; y++)
+	{
+	    for(int x = 0; x < cv_ptr->image.cols; x++)
+	    {
+		if (cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[0] < b+v && cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[0] > b-v &&
+			cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[1] < g+v && cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[1] > g-v &&
+			cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[2] < r+v && cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[2] > r-v){
+    		    
+		    cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[0]=255;
+		    cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[1]=255;
+		    cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[2]=255;
+    		}	
+		else {
+		    cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[0]=0;
+		    cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[1]=0;
+		    cv_ptr->image.at<cv::Vec3b>(cv::Point(x,y))[2]=0;
+		}
+	    }
+	}
+	return cv_ptr;
+  };
+
+ cv_bridge::CvImagePtr HardTable( cv_bridge::CvImagePtr& cv_ptr )
+ {
+  int lineType = 8;
+
+  /** Create some points */
+  cv::Point rook_points[1][4];
+  rook_points[0][0] = cv::Point( 0.0, 0.0 );
+  rook_points[0][1] = cv::Point( 0.0, 50.0 );
+  rook_points[0][2] = cv::Point( 50.0, 50.0 );
+  rook_points[0][3] = cv::Point( 50.0, 0.0 );
+  
+
+  const cv::Point* ppt[1] = { rook_points[0] };
+  int npt[] = { 4 };
+
+  cv::Mat img = cv_ptr->image.clone();
+
+  cv::fillPoly( img,
+            ppt,
+            npt,
+            1,
+            cv::Scalar( 255, 0, 0 ),
+            lineType );
+  
+  float alpha = 0.7;
+  float beta = ( 1.0 - alpha );
+  cv::addWeighted( cv_ptr->image, alpha, img, beta, 0.0, cv_ptr->image);
+
+
+  return cv_ptr;
+ };
+
+
+
+//Konstruktor
   ImageConverter()
     : it_(nh_)
   {
@@ -25,7 +99,7 @@ public:
 
     cv::namedWindow(OPENCV_WINDOW);
   }
-
+//Destruktor
   ~ImageConverter()
   {
     cv::destroyWindow(OPENCV_WINDOW);
@@ -43,22 +117,40 @@ public:
       ROS_ERROR("cv_bridge exception: %s", e.what());
       return;
     }
+ 
+//Binarize the image
+//      cv_ptr = binarize(cv_ptr,181,217,238,90);
+//	cv_ptr = binarize(cv_ptr,125,125,125,90);	
 
-    // Draw an example circle on the video stream
-    if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
-      cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255,0,0));
-    
-    //cv_ptr->image.
+    //cv::cvSmooth(cv_ptr, cv_ptr, CV_GAUSSIAN, 9, 9, 3);    
 
-
-
-
-
-
-
+    //cv::blur(cv_ptr->image, cv_ptr->image, cv::Size(10,10));
+    //cv::GaussianBlur(cv_ptr,cv_ptr,5,5,5);
+    //cv::Vec3b color = cv_ptr->image.at<cv::Vec3b>(cv::Point(1,1));
+    //ROS_INFO("Hello");
 
 
+    //cv::Mat gray_out;
 
+//Bild in Graustufen
+//  cv::cvtColor(cv_ptr->image, cv_ptr->image, CV_BGR2GRAY);
+
+
+//Tisch hard gecoded
+  cv_ptr = HardTable(cv_ptr);
+
+
+//cv::GaussianBlur(cv_ptr->image, cv_ptr->image, cv::Size(3, 3), 0, 0);
+
+// Apply erosion or dilation on the image
+/*        int erosion_size = 1;  
+	cv::Mat element = getStructuringElement(cv::MORPH_ELLIPSE, 
+	cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
+              cv::Point(erosion_size, erosion_size) );
+        
+	cv::dilate(cv_ptr->image,cv_ptr->image,element);       
+	cv::erode(cv_ptr->image,cv_ptr->image,element);
+*/       
     // Update GUI Window
     cv::imshow(OPENCV_WINDOW, cv_ptr->image);
     cv::waitKey(3);
@@ -67,6 +159,8 @@ public:
     image_pub_.publish(cv_ptr->toImageMsg());
   }
 };
+
+
 
 int main(int argc, char** argv)
 {

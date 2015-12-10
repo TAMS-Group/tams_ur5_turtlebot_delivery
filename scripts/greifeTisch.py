@@ -32,6 +32,7 @@ def move_group_python_interface_tutorial():
   group.set_planning_time(120)
   
   
+  
   ########## hand setup
  # hand_pub = rospy.Publisher('SModelRobotOutput', outputMsg.SModel_robot_output)
  # close_command = outputMsg.SModel_robot_output()
@@ -57,7 +58,7 @@ def move_group_python_interface_tutorial():
   pose_target.position.y = 0.4
   pose_target.position.z = 1.1
 
-  group.set_pose_target(pose_target)
+  group.set_pose_target(pose_target,"ee_link")
   #group.set_position_target([0.7,0.4,0.1], end_effector_link)
   print "planning plan1"
   plan1 = group.plan()
@@ -65,66 +66,6 @@ def move_group_python_interface_tutorial():
   print "plan1 finished"
   group.clear_pose_targets()
   group.clear_path_constraints()
-  rospy.sleep(1)
-  
-  #######################################################################
-  rospy.sleep(2)
- # hand_pub.publish(close_command)
-  group.attach_object("flasche3")
-  rospy.sleep(2)
-  #######################################################################
-
-  pose_target = geometry_msgs.msg.Pose()
-
-  pose_target.orientation.x = 0.5
-  pose_target.orientation.y = 0.5
-  pose_target.orientation.z = -0.5
-  pose_target.orientation.w = 0.5
-  pose_target.position.x = 0.8
-  pose_target.position.y = 1.0
-  pose_target.position.z = 0.6
- # 
- # group.set_position_target([0.4,1.2,0.6], "ee_link")
-  group.set_pose_target(pose_target)
- # group.set_position_target([0.8,1.0,0.6])
-  
-  
-  constraints = Constraints()
-  constraints.name = "upright"
-  orientation_constraint = OrientationConstraint()
-  orientation_constraint.header.frame_id = group.get_planning_frame()
-  orientation_constraint.link_name = group.get_end_effector_link()
-  
-  orientation_constraint.orientation.x = 0.5
-  orientation_constraint.orientation.y = 0.5
-  orientation_constraint.orientation.z = -0.5
-  orientation_constraint.orientation.w = 0.5
-  
-  orientation_constraint.absolute_x_axis_tolerance = 0.3
-  orientation_constraint.absolute_y_axis_tolerance = 0.3
-  orientation_constraint.absolute_z_axis_tolerance = 3.1 #ignore this axis
-  orientation_constraint.weight = 1
-  constraints.orientation_constraints.append(orientation_constraint) 
-  
-  group.set_path_constraints(constraints)
-  print "planning plan1"
-  plan1 = group.plan()
-  succes = group.execute(plan1)
-  print "plan1 finished"
-  
-  group.clear_pose_targets()
-  group.clear_path_constraints()
-  
-  #################################################
-  rospy.sleep(2)
-  group.detach_object("flasche3")
- # hand_pub(open_command)
-  rospy.sleep(2)
-  ##############################################################
-  
-  #rospy.sleep(2)
-  #scene.remove_world_object("flasche3")
-
 
   moveit_commander.roscpp_shutdown()
 

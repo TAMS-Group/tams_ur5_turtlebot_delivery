@@ -19,7 +19,7 @@ def move_group_python_interface_tutorial():
 
   robot = moveit_commander.RobotCommander()
   
-  group = moveit_commander.MoveGroupCommander("manipulator")
+  group = moveit_commander.MoveGroupCommander("UR5_arm")
 
   scene = moveit_commander.PlanningSceneInterface()
 

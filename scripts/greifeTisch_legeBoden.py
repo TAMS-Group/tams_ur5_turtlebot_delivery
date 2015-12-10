@@ -27,7 +27,7 @@ def move_group_python_interface_tutorial():
 
   scene = moveit_commander.PlanningSceneInterface()
 
-  group = moveit_commander.MoveGroupCommander("manipulator")
+  group = moveit_commander.MoveGroupCommander("UR5_arm")
   group.set_planner_id("RRTConnectkConfigDefault")
   group.set_planning_time(120)
   
@@ -96,8 +96,8 @@ def move_group_python_interface_tutorial():
   orientation_constraint.link_name = group.get_end_effector_link()
   
   orientation_constraint.orientation.x = -0.5
-  orientation_constraint.orientation.y = 0.5
-  orientation_constraint.orientation.z = -0.5
+  orientation_constraint.orientation.y = -0.5
+  orientation_constraint.orientation.z = 0.5
   orientation_constraint.orientation.w = -0.5
 
   orientation_constraint.absolute_x_axis_tolerance = 0.1

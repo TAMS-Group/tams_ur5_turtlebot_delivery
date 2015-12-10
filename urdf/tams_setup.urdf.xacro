@@ -11,9 +11,9 @@
   <!-- ur5 -->
   <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
 
-  <!-- 3finger gripper
+  <!-- 3finger gripper -->
   <xacro:include filename="$(find robotiq_s_model_visualization)/cfg/s-model_articulated.xacro" />
-   -->
+   
   <!-- ft150    -->
   <xacro:include filename="$(find robotiq_force_torque_sensor)/urdf/robotiq_fts150.urdf.xacro" />
 
@@ -30,13 +30,13 @@
   </xacro:robotiq_fts150>                                                                       
 
 		                                                                                                    
-  <!-- the adaptive gripper                                                               
+  <!-- the adaptive gripper    -->                                                            
   <joint name="gripper_joint" type="fixed">                                                     
     <parent link="ft_fts_toolside" />                                                           
     <child link = "palm" />                                                                     
     <origin xyz="0.0 0.0 0.06" rpy="1.57079632679 0.0 1.570797" />                         
   </joint>  
-   -->
+  
 
   <link name="world" />
 

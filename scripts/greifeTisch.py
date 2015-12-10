@@ -58,7 +58,8 @@ def move_group_python_interface_tutorial():
   pose_target.position.y = 0.4
   pose_target.position.z = 1.1
 
-  group.set_pose_target(pose_target,"ee_link")
+  group.set_orientation_target([0.5,0.5,-0.5,0.5], "wrist_2_link")
+  #group.set_pose_target(pose_target,"ee_link")
   #group.set_position_target([0.7,0.4,0.1], end_effector_link)
   print "planning plan1"
   plan1 = group.plan()

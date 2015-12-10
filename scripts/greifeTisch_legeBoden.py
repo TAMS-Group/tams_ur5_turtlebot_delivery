@@ -29,7 +29,7 @@ def move_group_python_interface_tutorial():
 
   group = moveit_commander.MoveGroupCommander("UR5_arm")
   group.set_planner_id("RRTConnectkConfigDefault")
-  group.set_planning_time(120)
+  group.set_planning_time(240)
   
   
   ########## hand setup
@@ -56,6 +56,8 @@ def move_group_python_interface_tutorial():
   pose_target.position.x = 0.7
   pose_target.position.y = 0.4
   pose_target.position.z = 1.1
+  
+  
 
   group.set_pose_target(pose_target)
   #group.set_position_target([0.7,0.4,0.1], end_effector_link)
@@ -100,8 +102,8 @@ def move_group_python_interface_tutorial():
   orientation_constraint.orientation.z = -0.5
   orientation_constraint.orientation.w = 0.5
   
-  orientation_constraint.absolute_x_axis_tolerance = 0.3
-  orientation_constraint.absolute_y_axis_tolerance = 0.3
+  orientation_constraint.absolute_x_axis_tolerance = 2.5
+  orientation_constraint.absolute_y_axis_tolerance = 2.5
   orientation_constraint.absolute_z_axis_tolerance = 3.1 #ignore this axis
   orientation_constraint.weight = 1
   constraints.orientation_constraints.append(orientation_constraint) 
@@ -117,7 +119,7 @@ def move_group_python_interface_tutorial():
   
   #################################################
   rospy.sleep(2)
-  group.detach_object("flasche3")
+ # group.detach_object("flasche3")
  # hand_pub(open_command)
   rospy.sleep(2)
   ##############################################################

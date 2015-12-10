@@ -76,10 +76,10 @@ def move_group_python_interface_tutorial():
 
   pose_target = geometry_msgs.msg.Pose()
 
-  pose_target.orientation.x = 0.5
-  pose_target.orientation.y = 0.5
+  pose_target.orientation.x = -0.5
+  pose_target.orientation.y = -0.5
   pose_target.orientation.z = 0.5
-  pose_target.orientation.w = 0.5
+  pose_target.orientation.w = -0.5
   pose_target.position.x = 0.8
   pose_target.position.y = 1.0
   pose_target.position.z = 0.6
@@ -95,10 +95,10 @@ def move_group_python_interface_tutorial():
   orientation_constraint.header.frame_id = group.get_planning_frame()
   orientation_constraint.link_name = group.get_end_effector_link()
   
-  orientation_constraint.orientation.x = 0.5
+  orientation_constraint.orientation.x = -0.5
   orientation_constraint.orientation.y = 0.5
-  orientation_constraint.orientation.z = 0.5
-  orientation_constraint.orientation.w = 0.5
+  orientation_constraint.orientation.z = -0.5
+  orientation_constraint.orientation.w = -0.5
 
   orientation_constraint.absolute_x_axis_tolerance = 0.1
   orientation_constraint.absolute_y_axis_tolerance = 0.1

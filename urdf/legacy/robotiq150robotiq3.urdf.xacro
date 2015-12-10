@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="robotiq150robotiq3" >
+
+  <!-- the ft-sensor -->
+  <xacro:robotiq_fts150 prefix="ft_" parent="ee_link">
+    <origin xyz="0.0 0.0 0.012" rpy="0.0 0.0 0.0" />
+  </xacro:robotiq_fts150>
+
+  <!-- the adaptive gripper -->
+  <joint name="gripper_joint" type="fixed">
+    <parent link="ft_fts_toolside" />
+    <child link = "palm" />
+    <origin xyz="0.0 0.0 0.06" rpy="1.57079632679 0.0 3.14159265359" />
+  </joint>
+
+</robot>

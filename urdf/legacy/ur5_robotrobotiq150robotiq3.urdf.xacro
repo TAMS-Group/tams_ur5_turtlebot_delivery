@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur5" >
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find ur_description)/urdf/gazebo.urdf.xacro" />
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+
+	<!-- 3finger gripper -->
+  <xacro:include filename="$(find robotiq_s_model_visualization)/cfg/s-model_articulated.xacro" />
+
+  <!-- ft150 -->
+  <xacro:include filename="$(find robotiq_force_torque_sensor)/urdf/robotiq_fts150.urdf.xacro" />
+
+	<!-- transformation -->
+  <xacro:include filename="$(find ur5_tams)/urdf/robotiq150robotiq3.urdf.xacro" />
+
+  <!-- arm -->
+  <xacro:ur5_robot prefix="" joint_limited="false"/>
+
+  <!-- Transformation arm-ft-gripper -->
+  <!-- the ft-sensor -->
+  <xacro:robotiq_fts150 prefix="ft_" parent="ee_link">
+    <origin xyz="0.0 0.0 0.012" rpy="0.0 0.0 0.0" />
+  </xacro:robotiq_fts150>
+
+  <!-- the adaptive gripper -->
+  <joint name="gripper_joint" type="fixed">
+    <parent link="ft_fts_toolside" />
+    <child link = "palm" />
+    <origin xyz="0.0 0.0 0.06" rpy="1.57079632679 0.0 3.14159265359" />
+  </joint>
+
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "base_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+</robot>

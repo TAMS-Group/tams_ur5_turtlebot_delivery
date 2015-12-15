@@ -49,10 +49,12 @@ def move_group_python_interface_tutorial():
   
   print "============ Generating plan 1"
   pose_target = geometry_msgs.msg.Pose()
+  
   pose_target.orientation.x = 0.5
   pose_target.orientation.y = 0.5
   pose_target.orientation.z = -0.5
-  pose_target.orientation.w = 0.5
+  pose_target.orientation.w = 0.5 
+#pose_target.orientation.w = 1
   pose_target.position.x = 0.7
   pose_target.position.y = 0.4
   pose_target.position.z = 1.1
@@ -72,7 +74,7 @@ def move_group_python_interface_tutorial():
   #######################################################################
   rospy.sleep(2)
  # hand_pub.publish(close_command)
-  group.attach_object("flasche3")
+  #group.attach_object("flasche3")
   rospy.sleep(2)
   #######################################################################
 
@@ -81,14 +83,14 @@ def move_group_python_interface_tutorial():
   pose_target.orientation.x = 0.5
   pose_target.orientation.y = 0.5
   pose_target.orientation.z = -0.5
-  pose_target.orientation.w = 0.5
+  pose_target.orientation.w = 0.5 
+  #pose_target.orientation.w = 1
   pose_target.position.x = 0.8
   pose_target.position.y = 1.0
   pose_target.position.z = 0.6
  # 
  # group.set_position_target([0.4,1.2,0.6], "ee_link")
   group.set_pose_target(pose_target)
- # group.set_position_target([0.8,1.0,0.6])
   
   
   constraints = Constraints()
@@ -96,19 +98,19 @@ def move_group_python_interface_tutorial():
   orientation_constraint = OrientationConstraint()
   orientation_constraint.header.frame_id = group.get_planning_frame()
   orientation_constraint.link_name = group.get_end_effector_link()
-  
   orientation_constraint.orientation.x = 0.5
   orientation_constraint.orientation.y = 0.5
   orientation_constraint.orientation.z = -0.5
   orientation_constraint.orientation.w = 0.5
   
-  orientation_constraint.absolute_x_axis_tolerance = 2.5
-  orientation_constraint.absolute_y_axis_tolerance = 2.5
-  orientation_constraint.absolute_z_axis_tolerance = 3.1 #ignore this axis
+  pi = 3.14159265
+  orientation_constraint.absolute_x_axis_tolerance = pi
+  orientation_constraint.absolute_y_axis_tolerance = pi
+  orientation_constraint.absolute_z_axis_tolerance = pi #ignore this axis
   orientation_constraint.weight = 1
   constraints.orientation_constraints.append(orientation_constraint) 
   
-  group.set_path_constraints(constraints)
+#  group.set_path_constraints(constraints)
   print "planning plan1"
   plan1 = group.plan()
   succes = group.execute(plan1)
@@ -119,7 +121,7 @@ def move_group_python_interface_tutorial():
   
   #################################################
   rospy.sleep(2)
- # group.detach_object("flasche3")
+  #group.detach_object("flasche3")
  # hand_pub(open_command)
   rospy.sleep(2)
   ##############################################################

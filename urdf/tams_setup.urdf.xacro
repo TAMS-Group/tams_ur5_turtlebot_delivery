@@ -9,7 +9,7 @@
   <xacro:include filename="$(find ur_description)/urdf/gazebo.urdf.xacro" />
 
   <!-- ur5 -->
-  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+  <xacro:include filename="$(find project15_manipulation)/urdf/ur5.urdf.xacro" />
 
   <!-- 3finger gripper -->
   <xacro:include filename="$(find robotiq_s_model_visualization)/cfg/s-model_articulated.xacro" />

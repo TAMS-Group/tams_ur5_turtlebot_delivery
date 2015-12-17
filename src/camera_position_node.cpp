@@ -29,12 +29,30 @@ void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
     listener.waitForTransform("/wall", "/april_tag_ur5", ros::Time(0), ros::Duration(10.0) );
     listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), tmpTransform);
     transform *= tmpTransform;
+    q.setRPY(1.57079,0,1.57079);
+    transform.setRotation(q);
 
-    listener.waitForTransform("/tag_0", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
-    listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), tmpTransform);
-    q.setRPY(90,0,0);
-    tmpTransform.setRotation(q);
+    listener.waitForTransform("/tag_0", "/camera_rgb_optical_frame", ros::Time(0), ros::Duration(10.0) );    
+    listener.lookupTransform("/tag_0", "/camera_rgb_optical_frame",  ros::Time(0), tmpTransform);
     transform *= tmpTransform;
+
+    listener.waitForTransform("/camera_rgb_optical_frame", "/camera_rgb_frame", ros::Time(0), ros::Duration(10.0) );    
+    listener.lookupTransform("/camera_rgb_optical_frame", "/camera_rgb_frame",  ros::Time(0), tmpTransform);
+    transform *= tmpTransform;
+
+    listener.waitForTransform("/camera_rgb_frame", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
+    listener.lookupTransform("/camera_rgb_frame", "/camera_link",  ros::Time(0), tmpTransform);
+    transform *= tmpTransform;
+
+
+    //listener.waitForTransform("/tag_0", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
+    //listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), tmpTransform);
+    //transform *= tmpTransform;
+
+    //listener.waitForTransform("/camera_link", "/camera_rgb_frame", ros::Time(0), ros::Duration(10.0) );    
+    //listener.lookupTransform("/camera_link", "/camera_rgb_frame",  ros::Time(0), tmpTransform);
+    //transform *= tmpTransform;
+    
 
   } catch (tf::TransformException ex) {
     ROS_ERROR("%s",ex.what());

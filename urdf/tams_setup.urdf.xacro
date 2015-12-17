@@ -51,7 +51,8 @@
     <child link = "base_link" />
     <!-- virtual wall is set to the adapter elements front surface!!! -->
     <!-- measured height of ur5 flange screws is 0.97 and 1.065 -> z=1.0175 -->
-    <origin xyz="0.0 0.722 1.0175" rpy="1.571 0.0 1.571" />
+    <!-- 0.722 auf 0.822 geändert-->
+    <origin xyz="0.0 0.822 1.0175" rpy="1.571 0.0 1.571" />
   </joint>
 
 </robot>

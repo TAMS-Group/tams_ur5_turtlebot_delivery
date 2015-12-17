@@ -11,8 +11,12 @@ find_package(catkin REQUIRED COMPONENTS
 	genmsg
 	tf
 	sensor_msgs
+	pcl_conversions
+        pcl_ros
+	#pcl_msgs
 	cv_bridge
 	image_transport)
+find_package(PCL REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -104,10 +108,18 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES project15_objectrecognition
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  #INCLUDE_DIRS include
+  LIBRARIES project15_objectrecognition
+  pcl_ros_filters
+  pcl_ros_io
+  pcl_ros_tf
+  CATKIN_DEPENDS 
+	pcl_conversions
+   #	pcl_msgs
+  DEPENDS 
+	PCL
+
+
 )
 
 ###########
@@ -116,7 +128,7 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
+ include_directories(${PCL_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(project15_objectrecognition
@@ -139,6 +151,8 @@ catkin_package(
 # target_link_libraries(project15_objectrecognition_node
 #   ${catkin_LIBRARIES}
 # )
+
+link_directories(${PCL_LIBRARY_DIRS})
 
 #############
 ## Install ##
@@ -192,6 +206,10 @@ add_executable(camera_position_node src/camera_position_node.cpp)
 target_link_libraries(camera_position_node ${catkin_LIBRARIES})
 
 add_executable(image_converter src/image_converter.cpp)
-target_link_libraries(image_converter ${catkin_LIBRARIES})
+target_link_libraries(image_converter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(test src/test.cpp)
+target_link_libraries(test ${catkin_LIBRARIES})
+target_link_libraries(test ${PCL_LIBRARIES})
 
 

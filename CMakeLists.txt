@@ -208,8 +208,5 @@ target_link_libraries(camera_position_node ${catkin_LIBRARIES})
 add_executable(image_converter src/image_converter.cpp)
 target_link_libraries(image_converter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(test src/test.cpp)
-target_link_libraries(test ${catkin_LIBRARIES})
-target_link_libraries(test ${PCL_LIBRARIES})
 
 

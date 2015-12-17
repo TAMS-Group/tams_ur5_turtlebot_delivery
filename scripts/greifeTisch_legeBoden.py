@@ -74,7 +74,7 @@ def move_group_python_interface_tutorial():
   #######################################################################
   rospy.sleep(2)
  # hand_pub.publish(close_command)
-  #group.attach_object("flasche3")
+  group.attach_object("flasche3")
   rospy.sleep(2)
   #######################################################################
 
@@ -85,7 +85,7 @@ def move_group_python_interface_tutorial():
   pose_target.orientation.z = -0.5
   pose_target.orientation.w = 0.5 
   #pose_target.orientation.w = 1
-  pose_target.position.x = 0.8
+  pose_target.position.x = 0.7
   pose_target.position.y = 1.0
   pose_target.position.z = 0.6
  # 
@@ -121,7 +121,7 @@ def move_group_python_interface_tutorial():
   
   #################################################
   rospy.sleep(2)
-  #group.detach_object("flasche3")
+  group.detach_object("flasche3")
  # hand_pub(open_command)
   rospy.sleep(2)
   ##############################################################

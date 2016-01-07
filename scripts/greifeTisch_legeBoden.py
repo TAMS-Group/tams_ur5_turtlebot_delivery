@@ -57,7 +57,7 @@ def move_group_python_interface_tutorial():
 #pose_target.orientation.w = 1
   pose_target.position.x = 0.7
   pose_target.position.y = 0.4
-  pose_target.position.z = 1.1
+  pose_target.position.z = 1.2
   
   
 
@@ -72,12 +72,14 @@ def move_group_python_interface_tutorial():
   rospy.sleep(1)
   
   #######################################################################
+ 
+ 
   rospy.sleep(2)
- # hand_pub.publish(close_command)
   group.attach_object("flasche3")
-  rospy.sleep(2)
-  #######################################################################
-
+  rospy.sleep(10)
+  group.set_start_state_to_current_state()
+  ##################
+  
   pose_target = geometry_msgs.msg.Pose()
 
   pose_target.orientation.x = 0.5
@@ -111,8 +113,15 @@ def move_group_python_interface_tutorial():
   constraints.orientation_constraints.append(orientation_constraint) 
   
 #  group.set_path_constraints(constraints)
+
+#################
+# hand_pub.publish(close_command)
+  
   print "planning plan1"
+  #group.set_start_state(robot.get_current_state())
+  rospy.sleep(2)
   plan1 = group.plan()
+  rospy.sleep(10) #pause fuer visualisierung
   succes = group.execute(plan1)
   print "plan1 finished"
   
@@ -123,6 +132,8 @@ def move_group_python_interface_tutorial():
   rospy.sleep(2)
   group.detach_object("flasche3")
  # hand_pub(open_command)
+  rospy.sleep(2)
+  group.set_start_state_to_current_state()
   rospy.sleep(2)
   ##############################################################
   

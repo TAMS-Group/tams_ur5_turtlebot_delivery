@@ -154,6 +154,10 @@ add_executable(movegroup_plan_pos1_pos2 src/movegroup_plan_pos1_pos2.cpp)
 target_link_libraries(movegroup_plan_pos1_pos2 ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 install(TARGETS movegroup_plan_pos1_pos2 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(cppGreifeTisch_legeBoden src/cppGreifeTisch_legeBoden.cpp)
+target_link_libraries(cppGreifeTisch_legeBoden ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+install(TARGETS cppGreifeTisch_legeBoden DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
  
 #add_dependencies(project15_manipulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 

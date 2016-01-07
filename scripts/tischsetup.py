@@ -8,6 +8,7 @@ import moveit_msgs.msg
 import geometry_msgs.msg
 ## END_SUB_TUTORIAL
 from std_msgs.msg import String
+from moveit_msgs.msg import MoveGroupGoal
 from moveit_msgs.msg._Constraints import Constraints
 from moveit_msgs.msg._OrientationConstraint import OrientationConstraint
 
@@ -32,14 +33,14 @@ def move_group_python_interface_tutorial():
   pose.pose.orientation.w = 1
   pose.pose.position.x = 0.7
   pose.pose.position.y = 0.4
-  pose.pose.position.z = 0.85
+  pose.pose.position.z = 0.90
   
   
   print "flasche wird hinzugefuegt"
-  scene.add_box("flasche3", pose, (0.05,0.05,0.2))
+  scene.add_box("flasche3", pose, (0.07,0.07,0.28))
   print "flasche hinzugefuegt OK"
   
-  
+
 
   moveit_commander.roscpp_shutdown()
 

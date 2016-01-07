@@ -19,6 +19,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_ros/point_cloud.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 
 static const std::string OPENCV_WINDOW = "Image window";
 
@@ -30,23 +32,21 @@ class ImageConverter
 public:
 //Konstruktor
   ImageConverter()
-    : it_(nh_), dit_(dnh_),cloud()//, dImage()
+    : it_(nh_), dit_(dnh_),cloud()
   {
     // Subscrive to input video feed and publish output video feed
     image_sub_ = it_.subscribe("/camera/rgb/image_raw", 1, 
       &ImageConverter::imageCb, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
-    // Subscribe to depth image
-    //depth_image_sub_ = dit_.subscribe("/camera/depth/image_raw", 1, 
-    //  &ImageConverter::depth_imageCb, this);
-
-  
-
   // Create a ROS subscriber for the input point cloud
     sub = nh.subscribe<PointCloud>("/camera/depth/points", 1, &ImageConverter::cloud_cb, this);
     
     cv::namedWindow(OPENCV_WINDOW);
+
+    search_dist[0] = 0.80;
+    search_dist[1] = 0.70;
+
   }
 
 
@@ -73,20 +73,138 @@ public:
    //ACHTUNG: In Graustufen nur ein Wert pro Pixel statt drei!
    //Bild in Graustufen
    //cv::cvtColor(cv_ptr->image, cv_ptr->image, CV_BGR2GRAY);
-   cv::Mat img = cv_ptr->image.clone();
-
+   //cv::Mat img = cv_ptr->image.clone();
+   //cv::Mat img(480,640, CV_8UC3,cv::Scalar::all(0));
+   cv::Mat img(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3, cv::Scalar::all(0));
    //handle Pointcloud
    if(cloud.size() != 0){
+	int minY = 0;
+	int maxY = 0;
+	int minX = 0;
+	int maxX = 0;
+
 	for(int i = 0; i < cloud.height; i++)
 	{
 	    for(int j = 0; j < cloud.width; j++)
 	    {
-		if (cloud.at(j,i).z < 2.00 && cloud.at(j,i).z >1.80){
-
+		if (cloud.at(j,i).z < search_dist[0] && cloud.at(j,i).z > search_dist[1]){
 		    img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,0,255);
+		    //dist[j][i] = true;
+		    /*if(minY > i || minY == 0){
+		        minY = i;
+			minX = j;
+		    }
+		    if(maxY < i){
+			maxY = i;
+			maxX = j;
+		    }*/
+		}
+		else{
+		    //dist[j][i] = false;
+		    //img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,0,0);
 		}
 	    }
-	}	
+	}
+	//if(minX > maxX){
+	//    int tmp = minX;
+	//    minX = maxX;
+	//    maxX = tmp;
+	//}
+	
+	//ROS_INFO("minY = %d, maxY = %d, minX = %d, maxX = %d",minY,maxY,minX,maxX);
+
+
+//***********************//
+// Bounding box around table
+//***********************//
+
+	int largest_area=0;
+ 	int largest_contour_index=0;
+ 	cv::Rect bounding_rect;
+ 
+ 	cv::Mat thr(img.rows, img.cols, CV_8UC3); 
+ 	cv::Mat dst(img.rows, img.cols, CV_8UC3, cv::Scalar::all(0));
+ 	cv::cvtColor(img, thr, CV_BGR2GRAY); //Convert to gray
+ 	cv::threshold(thr, thr,25, 255,cv::THRESH_BINARY); //Threshold the gray
+  
+    	cv::vector<cv::vector<cv::Point> > contours; // Vector for storing contour
+    	cv::vector<cv::Vec4i> hierarchy;
+ 
+    	cv::findContours( thr, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE ); // Find the contours in the image
+   
+	
+     	for( int i = 0; i< contours.size(); i++ ) // iterate through each contour. 
+      	{
+       		double a = contourArea(contours[i],false);  //  Find the area of contour
+       		if(a > largest_area){
+       			largest_area = a;
+       			largest_contour_index = i;                //Store the index of largest contour
+       			bounding_rect=boundingRect(contours[i]); // Find the bounding rectangle for biggest contour
+       		}
+      	}
+	 img = cv::Scalar::all(0);
+ 	cv::Scalar color( 255,255,255);
+ 	cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
+ 	cv::rectangle(img, bounding_rect,  cv::Scalar(0,255,0),1, 8,0);  
+
+//***************************
+// Bounding box around object
+        
+	cv::Mat img_o(img.rows, img.cols, CV_8UC3, cv::Scalar::all(0));
+
+	for(int i = bounding_rect.y; i < bounding_rect.y + bounding_rect.height; i++)
+	{
+	    for(int j = bounding_rect.x; j < bounding_rect.x + bounding_rect.width; j++)
+	    {
+		if (cloud.at(j,i).z < search_dist[1]-0.10 && cloud.at(j,i).z > search_dist[1]-0.40){
+		    img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,255,255);
+		    img_o.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,255,255);
+		}
+		if (cloud.at(j,i).z < search_dist[0] && cloud.at(j,i).z > search_dist[1]){
+		    img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,0,255);
+		}
+	    }	
+	}
+
+        cv::Rect bounding_rect_o;
+        largest_area=0;
+ 	largest_contour_index=0;
+
+ 	cv::cvtColor(img_o, thr, CV_BGR2GRAY); //Convert to gray
+ 	cv::threshold(thr, thr,25, 255,cv::THRESH_BINARY); //Threshold the gray
+  
+ 	cv::findContours( thr, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE ); // Find the contours in the image
+   	
+     	for( int i = 0; i< contours.size(); i++ ) // iterate through each contour. 
+      	{
+       		double a = contourArea(contours[i],false);  //  Find the area of contour
+       		if(a > largest_area){
+       			largest_area = a;
+       			largest_contour_index = i;                //Store the index of largest contour
+       			bounding_rect_o = boundingRect(contours[i]); // Find the bounding rectangle for biggest contour
+       		}
+      	}
+
+ 	cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
+ 	cv::rectangle(img, bounding_rect_o,  cv::Scalar(0,255,0),1, 8,0);
+
+	object_transform(bounding_rect_o);
+
+	/*  
+	int lineType = 8;
+	// Create some points 
+	cv::Point rook_points[1][4];
+	rook_points[0][0] = cv::Point( minX, minY );
+	rook_points[0][1] = cv::Point( maxX, minY );
+	rook_points[0][2] = cv::Point( maxX, maxY );
+	rook_points[0][3] = cv::Point( minX, maxY );
+
+	const cv::Point* ppt[1] = { rook_points[0] };
+	int npt[] = { 4 };
+
+	cv::fillPoly( img, ppt, npt, 1, cv::Scalar( 255, 0, 0 ), lineType );
+	*/
+	//findContours( img, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
    }
   
    float alpha = 0.5;
@@ -96,17 +214,45 @@ public:
 
    // Output modified video stream
    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
+   //cv::imshow(OPENCV_WINDOW, img);
    cv::waitKey(3);
 
    image_pub_.publish(cv_ptr->toImageMsg());
 
 }
  
+//Callback Pointcloud
 void cloud_cb(const PointCloud::ConstPtr& msg)
 {
   cloud = *msg;
 }
 
+//get object position and send transform
+void object_transform(cv::Rect bounding_rect){
+    int x = bounding_rect.x + (bounding_rect.width/2);
+    int y = bounding_rect.y + (bounding_rect.height/2);
+    
+    if(x > 0 && y > 0){
+	tf::TransformBroadcaster br;
+	tf::StampedTransform transform;
+	tf::TransformListener listener;
+	
+	transform.setOrigin(tf::Vector3(cloud.at(x,y).z, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
+	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
+
+	/*
+	ros::Rate rate(10.0); 
+	try {
+	    listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
+	    listener.lookupTransform("/world", "/camera_link", ros::Time(0), transform);
+	} catch (tf::TransformException ex) {
+	    ROS_ERROR("%s",ex.what());
+	}
+	*/
+	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
+	//br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
+    }
+}
 
 
 /*
@@ -169,31 +315,6 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 
 */
 
-/*
-//Callback depth image
-  void depth_imageCb(const sensor_msgs::ImageConstPtr& msg)
-  {
-    cv_bridge::CvImagePtr cv_depth_ptr;
-    try
-    {
-      cv_depth_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_16UC1);
-    }
-    catch (cv_bridge::Exception& e)
-    {
-      ROS_ERROR("cv_bridge exception: %s", e.what());
-      return;
-    }
-    
-    //cv::imshow(OPENCV_WINDOW, cv_depth_ptr->image);
-    //cv::waitKey(3);
-
-    //image_pub_.publish(cv_depth_ptr->toImageMsg());
-    dImage = cv_depth_ptr->image.clone();
-
-  }
-*/
-
-
 
 
 //Binarize the image
@@ -245,8 +366,6 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 
 
 protected:
-//  cv::Mat dImage;
-  
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
   image_transport::Subscriber image_sub_;
@@ -259,11 +378,11 @@ protected:
   ros::NodeHandle nh;
   ros::Subscriber sub;
   PointCloud cloud;
-  //bool[640][480] dist;
   bool dist[640][480];
+
+  float search_dist[2];
+
 };
-
-
 
 
 int main(int argc, char** argv)

@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	image_transport)
 find_package(PCL REQUIRED)
+find_package(OpenCV REQUIRED)
 
 
 ## System dependencies are found with CMake's conventions
@@ -119,6 +120,7 @@ catkin_package(
    #	pcl_msgs
   DEPENDS 
 	PCL
+	opencv
 
 
 )
@@ -129,7 +131,8 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
- include_directories(${PCL_INCLUDE_DIRS})
+ include_directories(${PCL_INCLUDE_DIRS}
+${OpenCV_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(project15_objectrecognition

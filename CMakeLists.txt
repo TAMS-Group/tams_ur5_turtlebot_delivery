@@ -170,9 +170,7 @@ add_executable(cppRoutineUpdate2 src/cppRoutineUpdate2.cpp)
 target_link_libraries(cppRoutineUpdate2 ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 install(TARGETS cppRoutineUpdate2 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-add_executable(cpptischsetup src/cpptischsetup.cpp)
-target_link_libraries(cpptischsetup ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-install(TARGETS cpptischsetup DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 
 
 #add_dependencies(project15_manipulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

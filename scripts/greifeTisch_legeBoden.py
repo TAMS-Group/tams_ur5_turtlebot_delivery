@@ -29,7 +29,7 @@ def move_group_python_interface_tutorial():
 
   group = moveit_commander.MoveGroupCommander("UR5_arm")
   group.set_planner_id("RRTConnectkConfigDefault")
-  group.set_planning_time(60)
+  group.set_planning_time(120)
   
   
   ########## hand setup
@@ -49,6 +49,8 @@ def move_group_python_interface_tutorial():
   pose_target.position.x = 0.8
   pose_target.position.y = 0.8
   pose_target.position.z = 1.25
+
+
   
   group.set_pose_target(pose_target)
   print "planning plan1"
@@ -70,7 +72,7 @@ def move_group_python_interface_tutorial():
   pose_target.orientation.y = 0.5
   pose_target.orientation.z = -0.5
   pose_target.orientation.w = 0.5 
-  #pose_target.orientation.w = 1
+
   pose_target.position.x = 0.7
   pose_target.position.y = 0.4
   pose_target.position.z = 1.2
@@ -78,25 +80,7 @@ def move_group_python_interface_tutorial():
  # group.set_position_target([0.4,1.2,0.6], "ee_link")
   group.set_pose_target(pose_target)
   
-  
-  #constraints = Constraints()
-  #constraints.name = "upright"
-  #orientation_constraint = OrientationConstraint()
-  #orientation_constraint.header.frame_id = group.get_planning_frame()
-  #orientation_constraint.link_name = group.get_end_effector_link()
-  #orientation_constraint.orientation.x = 0.5
-  #orientation_constraint.orientation.y = 0.5
-  #orientation_constraint.orientation.z = -0.5
-  #orientation_constraint.orientation.w = 0.5
-  
-  #pi = 3.14159265
-  #orientation_constraint.absolute_x_axis_tolerance = pi
-  #orientation_constraint.absolute_y_axis_tolerance = pi
-  #orientation_constraint.absolute_z_axis_tolerance = pi #ignore this axis
-  #orientation_constraint.weight = 1
-  #constraints.orientation_constraints.append(orientation_constraint) 
-  
-#  group.set_path_constraints(constraints)
+
 
 #################
 # hand_pub.publish(close_command)
@@ -117,28 +101,7 @@ def move_group_python_interface_tutorial():
 ################################################  
 #### Plan 3: Move to in-between-position (table,turtle)
 ################################################
-  print "Plan 3: Move to in-between-position (table,turtle)"
 
-  pose_target.orientation.x = 0.5
-  pose_target.orientation.y = 0.5
-  pose_target.orientation.z = -0.5
-  pose_target.orientation.w = 0.5 
-  #pose_target.orientation.w = 1
-  pose_target.position.x = 0.742
-  pose_target.position.y = 1.05
-  pose_target.position.z = 1.16
- # 
- # group.set_position_target([0.4,1.2,0.6], "ee_link")
-  group.set_pose_target(pose_target)
-
-  print "planning plan3"
-  #group.set_start_state(robot.get_current_state())
-  rospy.sleep(2)
-  group.go()
-  print "plan3 finished"
-
-  group.clear_pose_targets()
-  group.clear_path_constraints()
 
 
 
@@ -147,15 +110,35 @@ def move_group_python_interface_tutorial():
 ################################################
   print "Plan 4: Move to turtle"
 
+  #group.set_start_state(robot.get_current_state())
+  #constraints = Constraints()
+  #constraints.name = "upright"
+  #orientation_constraint = OrientationConstraint()
+  #orientation_constraint.header.frame_id = group.get_planning_frame()
+  #orientation_constraint.link_name = group.get_end_effector_link()
+  #orientation_constraint.orientation.x = 0.5
+  #orientation_constraint.orientation.y = 0.5
+  #orientation_constraint.orientation.z = -0.5
+  #orientation_constraint.orientation.w = 0.5
+  
+  #pi = 3.14159265
+  #orientation_constraint.absolute_x_axis_tolerance = 0.9
+  #orientation_constraint.absolute_y_axis_tolerance = 0.9
+  #orientation_constraint.absolute_z_axis_tolerance = 0.9 #pi =ignore this axis
+  #orientation_constraint.weight = 1
+  #constraints.orientation_constraints.append(orientation_constraint) 
+  
+  #group.set_path_constraints(constraints)
+
   pose_target.orientation.x = 0.5
   pose_target.orientation.y = 0.5
   pose_target.orientation.z = -0.5
   pose_target.orientation.w = 0.5 
-  #pose_target.orientation.w = 1
+
   pose_target.position.x = 0.43
   pose_target.position.y = 1.32
   pose_target.position.z = 1 ## 0.8 fuer tiefer
- # group.set_position_target([0.4,1.2,0.6], "ee_link")
+
   group.set_pose_target(pose_target)
 
   print "planning plan4"
@@ -194,7 +177,7 @@ def move_group_python_interface_tutorial():
   
 
   group.set_pose_target(pose_target)
-  #group.set_position_target([0.7,0.4,0.1], end_effector_link)
+
   print "planning plan5"
   group.go()
   print "plan5 finished"

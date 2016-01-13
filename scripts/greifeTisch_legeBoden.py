@@ -140,9 +140,6 @@ def move_group_python_interface_tutorial():
 #### Plan 3: Move to in-between-position (table,turtle)
 ################################################
   print "Plan 3: Move to in-between-position (table,turtle)"
-  group.set_start_state_to_current_state()
-  
-  pose_target = geometry_msgs.msg.Pose()
 
   pose_target.orientation.x = 0.5
   pose_target.orientation.y = 0.5
@@ -171,10 +168,6 @@ def move_group_python_interface_tutorial():
 #### Plan 4: Go to turtle
 ################################################
   print "Plan 4: Move to turtle"
-
-  group.set_start_state_to_current_state()
-  
-  pose_target = geometry_msgs.msg.Pose()
 
   pose_target.orientation.x = 0.5
   pose_target.orientation.y = 0.5

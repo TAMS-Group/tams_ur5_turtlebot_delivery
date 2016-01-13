@@ -57,28 +57,6 @@ def move_group_python_interface_tutorial():
   group.clear_pose_targets()
   group.clear_path_constraints()
   rospy.sleep(1)
-
-################################################  
-#### Add Object to environment
-################################################
-  group.set_start_state_to_current_state()
-  print "Adding object to environment"
-  pose = geometry_msgs.msg.PoseStamped()
-  pose.header.frame_id = group.get_planning_frame()
-  pose.pose.orientation.w = 1
-  pose.pose.position.x = 0.7
-  pose.pose.position.y = 0.4
-  pose.pose.position.z = 0.90
-  
-  print "flasche wird hinzugefuegt"
-  scene.add_box("flasche3", pose, (0.07,0.07,0.28))
-  print "flasche hinzugefuegt OK"
-
-  rospy.sleep(5)
-
-  group.clear_pose_targets()
-  group.clear_path_constraints()
-  
   
   
 ################################################  

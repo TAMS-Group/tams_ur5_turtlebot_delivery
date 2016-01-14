@@ -29,7 +29,7 @@ def move_group_python_interface_tutorial():
 
   group = moveit_commander.MoveGroupCommander("UR5_arm")
   group.set_planner_id("RRTConnectkConfigDefault")
-  group.set_planning_time(120)
+  group.set_planning_time(30)
   
   
   ########## hand setup
@@ -135,9 +135,9 @@ def move_group_python_interface_tutorial():
   pose_target.orientation.z = -0.5
   pose_target.orientation.w = 0.5 
 
-  pose_target.position.x = 0.43
-  pose_target.position.y = 1.32
-  pose_target.position.z = 1 ## 0.8 fuer tiefer
+  pose_target.position.x = 0.35
+  pose_target.position.y = 1.35
+  pose_target.position.z = 0.8 ## 0.8 fuer tiefer
 
   group.set_pose_target(pose_target)
 

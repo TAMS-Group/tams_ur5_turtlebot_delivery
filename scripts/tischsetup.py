@@ -37,7 +37,7 @@ def move_group_python_interface_tutorial():
   
   
   print "flasche wird hinzugefuegt"
-  scene.add_box("flasche3", pose, (0.07,0.07,0.28))
+  scene.add_box("flasche3", pose, (0.08,0.08,0.28))
   print "flasche hinzugefuegt OK"
   
 

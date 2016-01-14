@@ -201,7 +201,7 @@ public:
  	cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
  	cv::rectangle(img, bounding_rect_o,  cv::Scalar(0,255,0),1, 8,0);
 
-	object_transform(bounding_rect_o);
+	object_transform(bounding_rect_o, h);
    }
   
    float alpha = 0.5;
@@ -223,14 +223,14 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 }
 
 //get object position and send transform
-void object_transform(cv::Rect bounding_rect){
+void object_transform(cv::Rect bounding_rect, float h){
     int x = bounding_rect.x + (bounding_rect.width/2);
     int y = bounding_rect.y + (bounding_rect.height/2);
     
     
 
     if(x > 0 && y > 0){
-	transform.setOrigin(tf::Vector3(cloud.at(x,y).z, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
+	transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
 	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
     }
     if(transform.getOrigin().getZ() > 0){

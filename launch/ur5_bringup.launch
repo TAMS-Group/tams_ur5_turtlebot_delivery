@@ -25,8 +25,4 @@
     <arg name="max_payload"  value="$(arg max_payload)"/>
   </include>
 
-  <!-- robot model -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find ur5_tams)/urdf/tams_setup.urdf.xacro'" />
-
-
 </launch>

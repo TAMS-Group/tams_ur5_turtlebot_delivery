@@ -22,7 +22,7 @@ def move_group_python_interface_tutorial():
   rospy.init_node('armroutine',
                   anonymous=True)
 
-  
+  #### transform koordinaden abgreifen
   posx = 0.5
   posy = 0.3
   

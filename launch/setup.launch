@@ -7,7 +7,7 @@
   <include file="$(find project15_manipulation)/launch/ur5_bringup.launch"/>
 
   <!-- load robotmodel (arm+corner , limited by default) -->
-  <include file="$(find project15_gazebo)/launch/ur5corner_upload.launch"/>
+  <include file="$(find project15_manipulation)/launch/ur5corner_upload.launch"/>
   
   <!--
   <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>

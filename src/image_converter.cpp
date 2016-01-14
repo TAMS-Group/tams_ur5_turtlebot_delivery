@@ -45,8 +45,8 @@ public:
     
     cv::namedWindow(OPENCV_WINDOW);
 
-    search_dist[0] = 0.80;
-    search_dist[1] = 0.70;
+    search_dist[0] = 1.90;
+    search_dist[1] = 1.80;
 
   }
 
@@ -150,6 +150,18 @@ public:
 
 //***************************
 // Bounding box around object
+   	float h = 10; 
+
+    // find highest point over table 
+        for(int i = bounding_rect.y; i < bounding_rect.y + bounding_rect.height; i++)
+	{
+	    for(int j = bounding_rect.x; j < bounding_rect.x + bounding_rect.width; j++)
+	    {
+   		if (cloud.at(j,i).z < h){
+		    h = cloud.at(j,i).z;
+		}
+	    }
+	}
         
 	cv::Mat img_o(img.rows, img.cols, CV_8UC3, cv::Scalar::all(0));
 
@@ -157,7 +169,7 @@ public:
 	{
 	    for(int j = bounding_rect.x; j < bounding_rect.x + bounding_rect.width; j++)
 	    {
-		if (cloud.at(j,i).z < search_dist[1]-0.10 && cloud.at(j,i).z > search_dist[1]-0.40){
+		if (cloud.at(j,i).z < h+0.02 && cloud.at(j,i).z > h-0.02){
 		    img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,255,255);
 		    img_o.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,255,255);
 		}
@@ -190,19 +202,14 @@ public:
  	cv::rectangle(img, bounding_rect_o,  cv::Scalar(0,255,0),1, 8,0);
 
 	object_transform(bounding_rect_o);
-
-	//findContours( img, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
    }
   
    float alpha = 0.5;
    float beta = ( 1.0 - alpha );
    cv::addWeighted( cv_ptr->image, alpha, img, beta, 0.0, cv_ptr->image);
  
-   //cv::cvtColor(cv_ptr->image,img,CV_BGR2GRAY);
-
    // Output modified video stream
    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
-   //cv::imshow(OPENCV_WINDOW, img);
    cv::waitKey(3);
 
    image_pub_.publish(cv_ptr->toImageMsg());
@@ -220,45 +227,17 @@ void object_transform(cv::Rect bounding_rect){
     int x = bounding_rect.x + (bounding_rect.width/2);
     int y = bounding_rect.y + (bounding_rect.height/2);
     
-    if(x > 0 && y > 0){
-	tf::TransformBroadcaster br;
-	tf::StampedTransform transform;
-	tf::TransformListener listener;
-	
-	transform.setOrigin(tf::Vector3(cloud.at(x,y).z, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
-	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
+    
 
-	/*
-	ros::Rate rate(10.0); 
-	try {
-	    listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
-	    listener.lookupTransform("/world", "/camera_link", ros::Time(0), transform);
-	} catch (tf::TransformException ex) {
-	    ROS_ERROR("%s",ex.what());
-	}
-	*/
-	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
-	//br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
+    if(x > 0 && y > 0){
+	transform.setOrigin(tf::Vector3(cloud.at(x,y).z, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
+	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
+    }
+    if(transform.getOrigin().getZ() > 0){
+    	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
     }
 }
 
-
-
-
-
-
-    // Update GUI Window
-    //if (depth_image != 0){
-    //cv::imshow(OPENCV_WINDOW, depth_image);
-    //cv::waitKey(3);
-    //}
-    // Output modified video stream
-    //cv::imshow(OPENCV_WINDOW, dImage);
-    //cv::waitKey(3);
-
-   // image_pub_.publish(cv_ptr->toImageMsg());
-   // image_pub_.publish(cv_depth_ptr->toImageMsg());
- // }
 
 
 
@@ -278,6 +257,10 @@ protected:
   bool dist[640][480];
 
   float search_dist[2];
+
+  tf::StampedTransform transform;
+    tf::TransformBroadcaster br;
+    tf::TransformListener listener;
 
 };
 

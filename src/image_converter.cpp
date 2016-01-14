@@ -73,9 +73,6 @@ public:
 
    //ACHTUNG: In Graustufen nur ein Wert pro Pixel statt drei!
    //Bild in Graustufen
-   //cv::cvtColor(cv_ptr->image, cv_ptr->image, CV_BGR2GRAY);
-   //cv::Mat img = cv_ptr->image.clone();
-   //cv::Mat img(480,640, CV_8UC3,cv::Scalar::all(0));
    cv::Mat img(cv_ptr->image.rows, cv_ptr->image.cols, CV_8UC3, cv::Scalar::all(0));
    //handle Pointcloud
    if(cloud.size() != 0){
@@ -90,29 +87,9 @@ public:
 	    {
 		if (cloud.at(j,i).z < search_dist[0] && cloud.at(j,i).z > search_dist[1]){
 		    img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,0,255);
-		    //dist[j][i] = true;
-		    /*if(minY > i || minY == 0){
-		        minY = i;
-			minX = j;
-		    }
-		    if(maxY < i){
-			maxY = i;
-			maxX = j;
-		    }*/
-		}
-		else{
-		    //dist[j][i] = false;
-		    //img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,0,0);
 		}
 	    }
 	}
-	//if(minX > maxX){
-	//    int tmp = minX;
-	//    minX = maxX;
-	//    maxX = tmp;
-	//}
-	
-	//ROS_INFO("minY = %d, maxY = %d, minX = %d, maxX = %d",minY,maxY,minX,maxX);
 
 
 //***********************//
@@ -224,16 +201,19 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 
 //get object position and send transform
 void object_transform(cv::Rect bounding_rect, float h){
-    int x = bounding_rect.x + (bounding_rect.width/2);
-    int y = bounding_rect.y + (bounding_rect.height/2);
+    float x = bounding_rect.x + (bounding_rect.width/2);
+    float y = bounding_rect.y + (bounding_rect.height/2);
     
-    
+    //ROS_INFO("x: %f ,y: %f",-cloud.at(x,y).x,-cloud.at(x,y).y);
 
     if(x > 0 && y > 0){
 	transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
+        //transform.setOrigin(tf::Vector3(1,1,0.1));
 	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
     }
-    if(transform.getOrigin().getZ() > 0){
+    ROS_INFO("x: %f ,y: %f ,z: %f",transform.getOrigin().getX(),transform.getOrigin().getY(),transform.getOrigin().getZ());
+
+    if(transform.getOrigin().getX() > 0){
     	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
     }
 }
@@ -270,8 +250,5 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "image_converter");
   ImageConverter ic;
   ros::spin();
-//cv::Mat greyMat(480,640, CV_8UC3,cv::Scalar::all(0)), colorMat(480,640, CV_8UC3,cv::Scalar::all(0));
-//cv::cvtColor(colorMat, greyMat, cv::COLOR_BGR2GRAY); //cv::cvtConvert(colorMat,greyMat,cv::COLOR_BGR2GRAY); 
- 
 return 0;
 }

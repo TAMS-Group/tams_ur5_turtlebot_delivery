@@ -17,11 +17,15 @@ from pyassimp.structs import Scene
 
 def move_group_python_interface_tutorial():
 
-  print "============ Starting tutorial setup"
+  print "============ Starting"
   moveit_commander.roscpp_initialize(sys.argv)
-  rospy.init_node('move_group_python_interface_tutorial',
+  rospy.init_node('armroutine',
                   anonymous=True)
 
+  
+  posx = 0.5
+  posy = 0.3
+  
 
   robot = moveit_commander.RobotCommander()
 
@@ -49,8 +53,8 @@ def move_group_python_interface_tutorial():
   pose_target.position.x = 0.8
   pose_target.position.y = 0.8
   pose_target.position.z = 1.25
-
-
+  
+  
   
   group.set_pose_target(pose_target)
   print "planning plan1"
@@ -59,6 +63,21 @@ def move_group_python_interface_tutorial():
   group.clear_pose_targets()
   group.clear_path_constraints()
   rospy.sleep(1)
+  
+  
+  
+##################################################
+#### fuege flasche ein
+##################################################
+  pose = geometry_msgs.msg.PoseStamped()
+  pose.header.frame_id = group.get_planning_frame()
+  pose.pose.orientation.w = 1
+  pose.pose.position.x = posx
+  pose.pose.position.y = posy
+  pose.pose.position.z = 0.885
+  print "flasche wird hinzugefuegt"
+  scene.add_box("flasche3", pose, (0.08,0.08,0.28))
+  print "flasche hinzugefuegt OK"
   
   
 ################################################  
@@ -73,8 +92,8 @@ def move_group_python_interface_tutorial():
   pose_target.orientation.z = -0.5
   pose_target.orientation.w = 0.5 
 
-  pose_target.position.x = 0.7
-  pose_target.position.y = 0.4
+  pose_target.position.x = posx
+  pose_target.position.y = posy
   pose_target.position.z = 1.2
  # 
  # group.set_position_target([0.4,1.2,0.6], "ee_link")

@@ -21,8 +21,7 @@
  -->
 
   <!-- start movegroup -->
-  <include file="$(find ur5_tams_moveit)/launch/move_group.launch">
-    <arg name="info" value="true"/>
+  <include file="$(find project15_manipulation)/launch/ur5_moveit_planning_execution.launch">
     <arg name="debug" value="$(arg debug)"/>
   </include>
 

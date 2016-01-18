@@ -3,12 +3,16 @@
 
   <arg name="debug" default="true"/>
 
-  <!-- connect to arm -->
-  <include file="$(find project15_manipulation)/launch/ur5_bringup.launch"/>
+  <include file="$(find ur5_tams)/launch/ur5_bringup.launch"/>
 
-  <!-- load robotmodel (arm+corner , limited by default) -->
+  <!-- connect to arm 
+  <include file="$(find project15_manipulation)/launch/ur5_bringup.launch"/>
+  -->
+
+
+  <!-- load robotmodel (arm+corner , limited by default) 
   <include file="$(find project15_manipulation)/launch/ur5corner_upload.launch"/>
-  
+  -->
   <!--
   <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
   
@@ -21,7 +25,7 @@
  -->
 
   <!-- start movegroup -->
-  <include file="$(find project15_manipulation)/launch/ur5_moveit_planning_execution.launch">
+  <include file="$(find ur5_tams_moveit)/launch/move_group.launch">
     <arg name="debug" value="$(arg debug)"/>
   </include>
 

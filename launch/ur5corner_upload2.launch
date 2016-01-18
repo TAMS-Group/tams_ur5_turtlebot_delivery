@@ -9,7 +9,7 @@
 <launch>
 
   <!-- robot model -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find ur5_tams)/urdf/tams_setup.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find project15_manipulation)/urdf/tams_setup.urdf.xacro'" />
 
 
 </launch>

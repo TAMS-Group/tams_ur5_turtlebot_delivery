@@ -22,11 +22,11 @@ int main(int argc, char **argv)
   spinner.start();
 
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;  
-  moveit::planning_interface::MoveGroup group("UR5_arm");
+  moveit::planning_interface::MoveGroup group("RobotiqSHand");
 
   
 //transform koordinaden abgreifen
-  double posx = 0.5;
+  double posx = 0.8;
   double posy = 0.3;
   
   
@@ -34,15 +34,22 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::Publisher hand_pub = n.advertise<robotiq_s_model_control::SModel_robot_output>("SModelRobotOutput", 1000);
   robotiq_s_model_control::SModel_robot_output close_command;
+  close_command.rACT = 1;
+  close_command.rGTO = 1;
   close_command.rPRA = 255;
-  
+  close_command.rSPA = 255;
+  close_command.rFRA = 50;
   robotiq_s_model_control::SModel_robot_output open_command;
+  open_command.rACT = 1;
+  open_command.rGTO = 1;
   open_command.rPRA = 0;
+  open_command.rSPA = 255;
+  open_command.rFRA = 50;
   
   
   group.setPlannerId("RRTConnectkConfigDefault");
   group.setPlanningTime(240);
-  group.setNumPlanningAttempts(50);
+  group.setNumPlanningAttempts(100);
   
   group.clearPoseTargets();
   group.clearPathConstraints();
@@ -73,7 +80,7 @@ int main(int argc, char **argv)
   pose_place.orientation.w = 0.5;
   pose_place.position.x = 0.35;
   pose_place.position.y = 1.35;
-  pose_place.position.z = 0.8;
+  pose_place.position.z = 1.0;
   
   
   geometry_msgs::Pose pose_bottle;
@@ -104,6 +111,7 @@ int main(int argc, char **argv)
   std::vector<std::string> object_ids;
   object_ids.push_back(collision_object.id);
   
+
   
   ROS_INFO("bewege zu startzustand");
   group.setPoseTarget(pose_start);
@@ -137,20 +145,36 @@ int main(int argc, char **argv)
   ROS_INFO("OK");    
   sleep(2.0);
 
-  ROS_INFO("Flasche anhaengen");    
-  group.attachObject(collision_object.id);
-  ROS_INFO("OK");  
+
+  ROS_INFO("Flasche anhaengen");
+  std::vector<std::string> touch_links;
+  touch_links.push_back("finger_1_link_0");
+  touch_links.push_back("finger_1_link_1");
+  touch_links.push_back("finger_1_link_2");
+  touch_links.push_back("finger_1_link_3");
+  touch_links.push_back("finger_2_link_0");
+  touch_links.push_back("finger_2_link_1");
+  touch_links.push_back("finger_2_link_2");
+  touch_links.push_back("finger_2_link_3");
+  touch_links.push_back("finger_middel_link_0");
+  touch_links.push_back("finger_middle_link_1");
+  touch_links.push_back("finger_middle_link_2");
+  touch_links.push_back("finger_middle_link_3");
+  //std::vector<std::string> touch_links = {"finger_1_link_0", "finger_1_link_1", "finger_1_link_2", "finger_1_link_3", "finger_2_link_0", "finger_2_link_1", "finger_2_link_2", "finger_2_link_3","finger_middel_link_0", "finger_middel_link_1", "finger_middel_link_2", "finger_middel_link_3"};
+  group.attachObject(collision_object.id, "", touch_links);
+  ROS_INFO("OK");
   sleep(2.0);
   
   ROS_INFO("Schließe hand");    
   hand_pub.publish(close_command);  
   sleep(5.0);
-  
+
   ROS_INFO("bewege zu turtle");    
   group.setPoseTarget(pose_place);
   success = group.move();
   if(!success) {
     ROS_INFO("FAILED SHUTTING DOWN");
+    group.detachObject(collision_object.id);
     planning_scene_interface.removeCollisionObjects(object_ids);
     ros::shutdown();  
     return 0;

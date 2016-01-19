@@ -22,7 +22,7 @@ int main(int argc, char **argv)
   spinner.start();
 
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;  
-  moveit::planning_interface::MoveGroup group("RobotiqSHand");
+  moveit::planning_interface::MoveGroup group("UR5_arm");
 
   
 //transform koordinaden abgreifen
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
   pose_place.orientation.w = 0.5;
   pose_place.position.x = 0.35;
   pose_place.position.y = 1.35;
-  pose_place.position.z = 1.0;
+  pose_place.position.z = 0.9;
   
   
   geometry_msgs::Pose pose_bottle;
@@ -89,10 +89,16 @@ int main(int argc, char **argv)
   pose_bottle.position.y = posy;
   pose_bottle.position.z = 0.885;
   
+  geometry_msgs::Pose pose_turtle;
+  pose_turtle.orientation.w = 1;
+  pose_turtle.position.x = 0.35;
+  pose_turtle.position.y = 1.35;
+  pose_turtle.position.z = 0.21;
   
-  moveit_msgs::CollisionObject collision_object;
-  collision_object.header.frame_id = group.getPlanningFrame();
-  collision_object.id = "flasche";
+  
+  moveit_msgs::CollisionObject collision_flasche;
+  collision_flasche.header.frame_id = group.getPlanningFrame();
+  collision_flasche.id = "flasche";
 
   shape_msgs::SolidPrimitive primitive;
   primitive.type = primitive.BOX;
@@ -101,15 +107,34 @@ int main(int argc, char **argv)
   primitive.dimensions[1] = 0.08;
   primitive.dimensions[2] = 0.28;
 
-  collision_object.primitives.push_back(primitive);
-  collision_object.primitive_poses.push_back(pose_bottle);
-  collision_object.operation = collision_object.ADD;
+  collision_flasche.primitives.push_back(primitive);
+  collision_flasche.primitive_poses.push_back(pose_bottle);
+  collision_flasche.operation = collision_flasche.ADD;
 
+
+  moveit_msgs::CollisionObject collision_turtle;
+  collision_turtle.header.frame_id = group.getPlanningFrame();
+  collision_turtle.id = "turtle";
+
+  primitive.type = primitive.BOX;
+  primitive.dimensions.resize(3);
+  primitive.dimensions[0] = 0.35;
+  primitive.dimensions[1] = 0.35;
+  primitive.dimensions[2] = 0.42;
+
+  
+  collision_turtle.primitives.push_back(primitive);
+  collision_turtle.primitive_poses.push_back(pose_turtle);
+  collision_turtle.operation = collision_turtle.ADD;
+  
   std::vector<moveit_msgs::CollisionObject> collision_objects;
-  collision_objects.push_back(collision_object);
+  collision_objects.push_back(collision_flasche);
+  collision_objects.push_back(collision_turtle);
 
   std::vector<std::string> object_ids;
-  object_ids.push_back(collision_object.id);
+  object_ids.push_back(collision_flasche.id);
+  object_ids.push_back(collision_turtle.id);
+  
   
 
   
@@ -161,7 +186,7 @@ int main(int argc, char **argv)
   touch_links.push_back("finger_middle_link_2");
   touch_links.push_back("finger_middle_link_3");
   //std::vector<std::string> touch_links = {"finger_1_link_0", "finger_1_link_1", "finger_1_link_2", "finger_1_link_3", "finger_2_link_0", "finger_2_link_1", "finger_2_link_2", "finger_2_link_3","finger_middel_link_0", "finger_middel_link_1", "finger_middel_link_2", "finger_middel_link_3"};
-  group.attachObject(collision_object.id, "", touch_links);
+  group.attachObject(collision_flasche.id, "", touch_links);
   ROS_INFO("OK");
   sleep(2.0);
   
@@ -174,7 +199,7 @@ int main(int argc, char **argv)
   success = group.move();
   if(!success) {
     ROS_INFO("FAILED SHUTTING DOWN");
-    group.detachObject(collision_object.id);
+    group.detachObject(collision_flasche.id);
     planning_scene_interface.removeCollisionObjects(object_ids);
     ros::shutdown();  
     return 0;
@@ -183,7 +208,7 @@ int main(int argc, char **argv)
   sleep(2.0);
   
   ROS_INFO("Flasche abhaengen");    
-  group.detachObject(collision_object.id);
+  group.detachObject(collision_flasche.id);
   ROS_INFO("OK"); 
   sleep(2.0);
   

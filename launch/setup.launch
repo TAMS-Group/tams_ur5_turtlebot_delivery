@@ -3,6 +3,10 @@
 
   <arg name="debug" default="true"/>
 
+  <!-- The name of the parameter under which the URDF is loaded -->
+  <arg name="robot_description" default="robot_description"/>
+
+
   <include file="$(find ur5_tams)/launch/ur5_bringup.launch"/>
 
   <!-- connect to arm 
@@ -23,6 +27,7 @@
   <!-- Given the published joint states, publish tf for the robot links 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
  -->
+  
 
   <!-- start movegroup -->
   <include file="$(find ur5_tams_moveit)/launch/move_group.launch">

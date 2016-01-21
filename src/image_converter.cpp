@@ -48,6 +48,12 @@ public:
     search_dist[0] = 1.90;
     search_dist[1] = 1.80;
 
+    arrCtr = 0;
+    for (int i = 0; i <= ms; i++){
+	medArrayX[i] = 0;
+	medArrayY[i] = 0;
+    }
+
   }
 
 
@@ -201,9 +207,30 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 
 //get object position and send transform
 void object_transform(cv::Rect bounding_rect, float h){
-    float x = bounding_rect.x + (bounding_rect.width/2);
-    float y = bounding_rect.y + (bounding_rect.height/2);
+    int x = bounding_rect.x + (bounding_rect.width/2);
+    int y = bounding_rect.y + (bounding_rect.height/2);
     
+    medArrayX[ms] -= medArrayX[arrCtr];
+   medArrayX[arrCtr] = x;
+   medArrayX[ms] += medArrayX[arrCtr];
+   medArrayY[ms] -= medArrayY[arrCtr];
+   medArrayY[arrCtr] = y;
+   medArrayY[ms] += medArrayY[arrCtr];
+   
+   
+   if(arrCtr == ms-1){
+   	arrCtr = 0;
+   }
+   x = medArrayX[ms]/ms;
+   y = medArrayY[ms]/ms;
+
+   float clX = cloud.at(x,y).x;
+   float clY = cloud.at(x,y).y;
+    
+   if(clX != clX || clY != clY){}
+   else{
+
+
     ros::Rate rate(10.0); 
     try {
     	listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
@@ -214,17 +241,18 @@ void object_transform(cv::Rect bounding_rect, float h){
     
 
 
-    if(x > 0 && y > 0){
+    //if(x > 0 && y > 0){
 	//transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
-	transform.setOrigin(tf::Vector3(cloud.at(x,y).x+0.03, -cloud.at(x,y).y, -h));
+	transform.setOrigin(tf::Vector3(clX+0.03, -clY, -h));
 	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
-    }
+   // }
 
-    if(transform.getOrigin().getZ() != 0){
+    //if(transform.getOrigin().getZ() != 0){
         transform *= tmptransform;
     	//br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
 	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
-	ROS_INFO("X: %f Y: %f Z: %f", transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ());
+	//ROS_INFO("X: %f Y: %f Z: %f", transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ());
+    arrCtr++;
     }
 }
 
@@ -247,6 +275,10 @@ protected:
   bool dist[640][480];
 
   float search_dist[2];
+  const static int ms = 10;
+  int medArrayX[ms+1];
+  int medArrayY[ms+1];
+  int arrCtr;
 
   tf::StampedTransform tmptransform;
   tf::StampedTransform transform;

@@ -146,7 +146,7 @@ public:
 	{
 	    for(int j = bounding_rect.x; j < bounding_rect.x + bounding_rect.width; j++)
 	    {
-		if (cloud.at(j,i).z < h+0.02 && cloud.at(j,i).z > h-0.02){
+		if (cloud.at(j,i).z < h+0.03 && cloud.at(j,i).z > h-0.03){
 		    img.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,255,255);
 		    img_o.at<cv::Vec3b>(cv::Point(j,i)) = cv::Vec3b(0,255,255);
 		}
@@ -203,7 +203,7 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 void object_transform(cv::Rect bounding_rect, float h){
     float x = bounding_rect.x + (bounding_rect.width/2);
     float y = bounding_rect.y + (bounding_rect.height/2);
-    /*
+    
     ros::Rate rate(10.0); 
     try {
     	listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
@@ -211,17 +211,20 @@ void object_transform(cv::Rect bounding_rect, float h){
     } catch (tf::TransformException ex) {
     	ROS_ERROR("%s",ex.what());
     }
-    */
+    
 
 
     if(x > 0 && y > 0){
-	transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
+	//transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
+	transform.setOrigin(tf::Vector3(cloud.at(x,y).x+0.03, -cloud.at(x,y).y, -h));
 	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
     }
 
-    if(transform.getOrigin().getX() > 0){
-        //transform *= tmptransform;
-    	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
+    if(transform.getOrigin().getZ() != 0){
+        transform *= tmptransform;
+    	//br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
+	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
+	ROS_INFO("X: %f Y: %f Z: %f", transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ());
     }
 }
 
@@ -245,7 +248,7 @@ protected:
 
   float search_dist[2];
 
-  //tf::StampedTransform tmptransform;
+  tf::StampedTransform tmptransform;
   tf::StampedTransform transform;
   tf::TransformBroadcaster br;
   tf::TransformListener listener;

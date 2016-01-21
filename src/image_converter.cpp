@@ -203,17 +203,24 @@ void cloud_cb(const PointCloud::ConstPtr& msg)
 void object_transform(cv::Rect bounding_rect, float h){
     float x = bounding_rect.x + (bounding_rect.width/2);
     float y = bounding_rect.y + (bounding_rect.height/2);
-    
-    //ROS_INFO("x: %f ,y: %f",-cloud.at(x,y).x,-cloud.at(x,y).y);
+    /*
+    ros::Rate rate(10.0); 
+    try {
+    	listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
+    	listener.lookupTransform("/world", "/camera_link", ros::Time(0), tmptransform);
+    } catch (tf::TransformException ex) {
+    	ROS_ERROR("%s",ex.what());
+    }
+    */
+
 
     if(x > 0 && y > 0){
 	transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
-        //transform.setOrigin(tf::Vector3(1,1,0.1));
 	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
     }
-    ROS_INFO("x: %f ,y: %f ,z: %f",transform.getOrigin().getX(),transform.getOrigin().getY(),transform.getOrigin().getZ());
 
     if(transform.getOrigin().getX() > 0){
+        //transform *= tmptransform;
     	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
     }
 }
@@ -238,9 +245,10 @@ protected:
 
   float search_dist[2];
 
+  //tf::StampedTransform tmptransform;
   tf::StampedTransform transform;
-    tf::TransformBroadcaster br;
-    tf::TransformListener listener;
+  tf::TransformBroadcaster br;
+  tf::TransformListener listener;
 
 };
 

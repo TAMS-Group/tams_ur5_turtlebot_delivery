@@ -81,6 +81,15 @@ int main(int argc, char **argv)
   pose_place.position.x = 0.35;
   pose_place.position.y = 1.35;
   pose_place.position.z = 0.9;
+
+  geometry_msgs::Pose pose_in_between;
+  pose_place.orientation.x = 0.5;
+  pose_place.orientation.y = 0.5;
+  pose_place.orientation.z = -0.5;
+  pose_place.orientation.w = 0.5;
+  pose_place.position.x = 0.35;
+  pose_place.position.y = 1.35;
+  pose_place.position.z = 1.1;
   
   
   geometry_msgs::Pose pose_bottle;
@@ -194,6 +203,19 @@ int main(int argc, char **argv)
   hand_pub.publish(close_command);  
   sleep(5.0);
 
+  ROS_INFO("bewege zu Zwischenposition");    
+  group.setPoseTarget(pose_in_between);
+  success = group.move();
+  if(!success) {
+    ROS_INFO("FAILED SHUTTING DOWN");
+    group.detachObject(collision_flasche.id);
+    planning_scene_interface.removeCollisionObjects(object_ids);
+    ros::shutdown();  
+    return 0;
+  }
+  ROS_INFO("OK");    
+  sleep(2.0); 
+
   ROS_INFO("bewege zu turtle");    
   group.setPoseTarget(pose_place);
   success = group.move();
@@ -215,6 +237,19 @@ int main(int argc, char **argv)
   ROS_INFO("oeffne hand");    
   hand_pub.publish(open_command);
   sleep(5.0);
+
+  ROS_INFO("bewege zu Zwischenposition");    
+  group.setPoseTarget(pose_in_between);
+  success = group.move();
+  if(!success) {
+    ROS_INFO("FAILED SHUTTING DOWN");
+    group.detachObject(collision_flasche.id);
+    planning_scene_interface.removeCollisionObjects(object_ids);
+    ros::shutdown();  
+    return 0;
+  }
+  ROS_INFO("OK");    
+  sleep(2.0); 
   
   ROS_INFO("bewege zu endzustand");    
   group.setPoseTarget(pose_start);

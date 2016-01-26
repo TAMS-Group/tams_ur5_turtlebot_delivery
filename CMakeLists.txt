@@ -182,6 +182,14 @@ add_dependencies(
 )
 install(TARGETS cppActionServerPlaceObject DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(cppActionClientPlaceObject src/cppActionClientPlaceObject.cpp)
+target_link_libraries(cppActionClientPlaceObject ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_dependencies(
+  cppActionClientPlaceObject
+  ${project15_coordination}_EXPORTED_TARGETS
+)
+install(TARGETS cppActionServerPlaceObject DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 add_executable(cppRoutine src/cppRoutine.cpp)
 target_link_libraries(cppRoutine ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 install(TARGETS cppRoutine DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

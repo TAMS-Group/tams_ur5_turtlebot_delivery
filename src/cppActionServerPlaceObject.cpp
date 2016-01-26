@@ -49,7 +49,7 @@ public:
 
         //********************************ROUTINE**********************************
 
-	ROS_INFO("greife: %s", goal->obj());
+//	ROS_INFO("greife: %s", goal->obj);
 
 
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;

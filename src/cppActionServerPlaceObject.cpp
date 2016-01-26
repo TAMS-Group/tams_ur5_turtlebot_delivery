@@ -49,7 +49,7 @@ public:
 
         //********************************ROUTINE**********************************
 
-
+	ROS_INFO("greife: %s", goal->obj());
 
 
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
@@ -373,7 +373,7 @@ public:
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "armroutine");
+    ros::init(argc, argv, "PlaceObject");
     PlaceObjectAction ur5(ros::this_node::getName());
     ros::spin();
 

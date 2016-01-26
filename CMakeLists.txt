@@ -15,6 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
   geometric_shapes
   moveit_ros_planning_interface
   tf
+#  genmsg
+#  message_generation
+#  actionlib_msgs
 )
 
 find_package(cmake_modules REQUIRED)
@@ -72,6 +75,18 @@ find_package(Eigen REQUIRED)
 #   FILES
 #   Action1.action
 #   Action2.action
+# )
+
+## Generate actions in the 'action' folder
+# add_action_files(
+#   DIRECTORY action
+#   FILES PlaceObjectAction.action
+# )
+
+## Generate added messages and services with any dependencies listed here
+# generate_messages(
+#   DEPENDENCIES
+#   actionlib_msgs  # Or other packages containing msgs
 # )
 
 ## Generate added messages and services with any dependencies listed here
@@ -159,9 +174,13 @@ add_executable(cppGreifeTisch_legeBoden src/cppGreifeTisch_legeBoden.cpp)
 target_link_libraries(cppGreifeTisch_legeBoden ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 install(TARGETS cppGreifeTisch_legeBoden DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-add_executable(cppGreifeTisch_legeBoden src/cppActionGreifeTisch_legeBoden.cpp)
-target_link_libraries(cppGreifeTisch_legeBoden ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-install(TARGETS cppGreifeTisch_legeBoden DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+add_executable(cppActionServerPlaceObject src/cppActionServerPlaceObject.cpp)
+target_link_libraries(cppActionServerPlaceObject ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_dependencies(
+  cppActionServerPlaceObject
+  ${project15_coordination}_EXPORTED_TARGETS
+)
+install(TARGETS cppActionServerPlaceObject DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_executable(cppRoutine src/cppRoutine.cpp)
 target_link_libraries(cppRoutine ${catkin_LIBRARIES} ${Boost_LIBRARIES})

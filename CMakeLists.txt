@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   geometric_shapes
   moveit_ros_planning_interface
+  tf
 )
 
 find_package(cmake_modules REQUIRED)

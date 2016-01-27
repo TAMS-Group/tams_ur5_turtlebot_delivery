@@ -24,6 +24,8 @@
 #include <pcl_ros/point_cloud.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
+#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
+#include <geometry>
 
 
 //static const std::string OPENCV_WINDOW = "Image window";
@@ -237,9 +239,12 @@ if(ctrtmp >= 10){
     	ROS_ERROR("%s",ex.what());
     }
   //cloud = *msg;
-  pcl_ros::transformPointCloud(*msg,tmcloud, cloudtransform);
+  //pcl_ros::transformPointCloud(*msg,tmcloud, cloudtransform);
   //pcl_ros::transformPointCloud("/world", *msg,cloud, listener);
   //std::cout << "X " << cloud << std::endl;
+
+  tf2::doTransform(*msg,tmcloud, cloudtransform);
+
   ctrtmp = 0;
 
 

@@ -48,8 +48,9 @@ public:
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
   // Create a ROS subscriber for the input point cloud
-    sub = nh.subscribe<PointCloud>("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);
-    
+    //sub = nh.subscribe<PointCloud>("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);
+    sub = nh.subscribe("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);    
+
     //cv::namedWindow(OPENCV_WINDOW);
 
     search_dist[0] = 1.90;
@@ -216,8 +217,11 @@ public:
 }
  
 //Callback Pointcloud
-void cloud_cb(const PointCloud::ConstPtr& msg)
+//void cloud_cb(const PointCloud::ConstPtr& msg)
+void cloud_cb(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {
+
+sensor_msgs::PointCloud2 tmcloud;
 ctrtmp++;
 if(ctrtmp >= 10){
     try {
@@ -233,10 +237,18 @@ if(ctrtmp >= 10){
     	ROS_ERROR("%s",ex.what());
     }
   //cloud = *msg;
-  pcl::transformPointCloud(*msg,cloud, cloudtransform);
+  pcl_ros::transformPointCloud(*msg,tmcloud, cloudtransform);
   //pcl_ros::transformPointCloud("/world", *msg,cloud, listener);
-  std::cout << "X " << cloud << std::endl;
+  //std::cout << "X " << cloud << std::endl;
   ctrtmp = 0;
+
+
+    pcl::PCLPointCloud2 pcl_pc2;
+    pcl_conversions::toPCL(tmcloud,pcl_pc2);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new    pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(pcl_pc2,*temp_cloud);
+    
+    cloud = *temp_cloud;
 }
 }
 

@@ -14,7 +14,7 @@
 
   <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
     <rosparam param="tag_descriptions">[
-      {id: 0, size: 0.156},
+      {id: 0, size: 0.16},
       {id: 1, size: 0.13},
       {id: 2, size: 0.166},
       {id: 3, size: 0.166},
@@ -27,4 +27,5 @@
   </node>
 
   <node pkg="project15_objectrecognition" type="camera_position_node" name="camera_position_node" output="screen"/>
+  <node pkg="project15_objectrecognition" type="image_converter_MODE" name="image_converter_MODE" output="screen"/>
 </launch>

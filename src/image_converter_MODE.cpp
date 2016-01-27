@@ -25,7 +25,8 @@
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
-#include <geometry>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf/transform_datatypes.h>
 
 
 //static const std::string OPENCV_WINDOW = "Image window";
@@ -231,10 +232,7 @@ if(ctrtmp >= 10){
     	//listener.lookupTransform("/world", "/camera_link", ros::Time(0), tmptransform);
         ros::Time tmptime = ros::Time::now();
   	cloudlistener.waitForTransform("/camera_rgb_optical_frame", "/world", tmptime, ros::Duration(10.0) );
-	ROS_WARN("found transform");
-	
-    	cloudlistener.lookupTransform("/camera_rgb_optical_frame", "/world", tmptime, cloudtransform);
-	ROS_WARN("%f", cloudtransform.getOrigin().getZ());
+	cloudlistener.lookupTransform("/camera_rgb_optical_frame", "/world", tmptime, cloudtransform);
     } catch (tf::TransformException ex) {
     	ROS_ERROR("%s",ex.what());
     }
@@ -243,9 +241,14 @@ if(ctrtmp >= 10){
   //pcl_ros::transformPointCloud("/world", *msg,cloud, listener);
   //std::cout << "X " << cloud << std::endl;
 
-  tf2::doTransform(*msg,tmcloud, cloudtransform);
-
+  geometry_msgs::TransformStamped geotransform;
+  tf::transformStampedTFToMsg(cloudtransform, geotransform);
+//geotransform.transform.translation.x -= 3;
+//geotransform.transform.translation.y -= 2;
+//geotransform.transform.translation.z -= 1;
+  tf2::doTransform (*msg, tmcloud, geotransform); 
   ctrtmp = 0;
+
 
 
     pcl::PCLPointCloud2 pcl_pc2;
@@ -254,6 +257,10 @@ if(ctrtmp >= 10){
     pcl::fromPCLPointCloud2(pcl_pc2,*temp_cloud);
     
     cloud = *temp_cloud;
+
+std::cout << "x " << cloud.at(200,200).x << std::endl;
+std::cout << "y " << cloud.at(200,200).y << std::endl;
+std::cout << "z " << cloud.at(200,200).z << std::endl;    
 }
 }
 

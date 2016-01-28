@@ -41,7 +41,7 @@
   </include>
 
 <!-- connect to hand -->
-  <node name="robotiqSModel" pkg="robotiq_s_model_control" type="SModelTcpNode" args="192.168.1.11" respawn="true"/>
+  <node name="robotiqSModel" pkg="robotiq_s_model_control" type="SModelTcpNode.py" args="192.168.1.11" respawn="true"/>
 <!-- publish hand states -->
 <node name="robotiq_s_model_joint_state_publisher" pkg="robotiq_s_model_joint_state_publisher" type="robotiq_s_model_joint_state_publisher.py" respawn="true"/>
 

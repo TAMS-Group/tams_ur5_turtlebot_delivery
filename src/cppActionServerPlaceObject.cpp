@@ -57,6 +57,12 @@ public:
 
 //######### hand setup
         ros::Publisher hand_pub = node_handle_.advertise<robotiq_s_model_control::SModel_robot_output>("SModelRobotOutput", 1000);
+	robotiq_s_model_control::SModel_robot_output activate_command;
+        activate_command.rACT = 1;
+        activate_command.rGTO = 1;
+        activate_command.rPRA = 0;
+        activate_command.rSPA = 255;
+        activate_command.rFRA = 50;
         robotiq_s_model_control::SModel_robot_output close_command;
         close_command.rACT = 1;
         close_command.rGTO = 1;
@@ -159,7 +165,6 @@ public:
         tf::TransformListener listener;
         tf::StampedTransform transform;
 
-        ros::Rate rate(10.0);
         try {
             listener.waitForTransform("/world", "/object", ros::Time(0), ros::Duration(10.0) );
             listener.lookupTransform("/world", "/object", ros::Time(0), transform);
@@ -167,8 +172,8 @@ public:
             ROS_ERROR("%s",ex.what());
         }
 
-        double posx = transform.getOrigin().getX()+0.04;
-        double posy = transform.getOrigin().getY()-0.01;
+        double posx = transform.getOrigin().getX();
+        double posy = transform.getOrigin().getY();
 
         ROS_INFO("x %f", posx);
         ROS_INFO("y %f", posy);
@@ -224,17 +229,19 @@ public:
         object_ids.push_back(collision_flasche.id);
 
 
-        sleep(2.0);
 
-
+	hand_pub.publish(activate_command);
+	sleep(7.0);
 
         ROS_INFO("oeffne hand");
         hand_pub.publish(open_command);
-        sleep(5.0);
+        sleep(7.0);
+
 
         ROS_INFO("fuege Flasche ein");
         planning_scene_interface.addCollisionObjects(collision_objects);
         ROS_INFO("OK");
+        sleep(2.0);
 
 
         ROS_INFO("greifposition vorbereiten");

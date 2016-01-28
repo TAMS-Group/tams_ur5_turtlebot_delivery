@@ -151,8 +151,8 @@ int main(int argc, char **argv)
     	ROS_ERROR("%s",ex.what());
     }
     
- double posx = transform.getOrigin().getX()+0.04;
- double posy = transform.getOrigin().getY()-0.01;
+ double posx = transform.getOrigin().getX();
+ double posy = transform.getOrigin().getY();
   
  ROS_INFO("x %f", posx);    
  ROS_INFO("y %f", posy); 
@@ -261,6 +261,8 @@ int main(int argc, char **argv)
   touch_links.push_back("finger_middle_link_1");
   touch_links.push_back("finger_middle_link_2");
   touch_links.push_back("finger_middle_link_3");
+  touch_links.push_back("palm");
+
   //std::vector<std::string> touch_links = {"finger_1_link_0", "finger_1_link_1", "finger_1_link_2", "finger_1_link_3", "finger_2_link_0", "finger_2_link_1", "finger_2_link_2", "finger_2_link_3","finger_middel_link_0", "finger_middel_link_1", "finger_middel_link_2", "finger_middel_link_3"};
   group.attachObject(collision_flasche.id, "", touch_links);
   ROS_INFO("OK");

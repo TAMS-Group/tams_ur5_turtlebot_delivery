@@ -328,7 +328,7 @@ public:
         hand_pub.publish(open_command);
         sleep(5.0);
 
-        ROS_INFO("bewege zu Zwischenposition");
+        /*ROS_INFO("bewege zu Zwischenposition");
         group.setPoseTarget(pose_in_between);
         success = group.move();
         if(!success) {
@@ -339,7 +339,7 @@ public:
             return;
         }
         ROS_INFO("OK");
-        sleep(2.0);
+        sleep(2.0);*/
 
         ROS_INFO("bewege zu endzustand");
         group.setPoseTarget(pose_start);

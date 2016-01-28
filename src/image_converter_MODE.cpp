@@ -50,14 +50,16 @@ public:
       &ImageConverter::imageCb, this);
     image_pub_ = it_.advertise("/image_converter/output_video", 1);
 
+    cloud_pub = nh3.advertise<sensor_msgs::PointCloud2>("alignedcloud", 1);
+
   // Create a ROS subscriber for the input point cloud
     //sub = nh.subscribe<PointCloud>("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);
     sub = nh.subscribe("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);    
 
     //cv::namedWindow(OPENCV_WINDOW);
 
-    search_dist[0] = 1.90;
-    search_dist[1] = 1.80;
+    search_dist[0] = 0.78;
+    search_dist[1] = 0.73;
 
 
     ctrtmp = 0;
@@ -145,22 +147,22 @@ public:
 	 img = cv::Scalar::all(0);
  	cv::Scalar color( 255,255,255);
  	cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
-        bounding_rect.y += 60;
-	bounding_rect.height -= 60;
+        bounding_rect.y += 30;
+	bounding_rect.height -= 30;
  	cv::rectangle(img, bounding_rect,  cv::Scalar(0,255,0),1, 8,0);  
 
     	 
 
 //***************************
 // Bounding box around object
-   	float h = 10; 
+   	float h = 0; 
 
     // find highest point over table 
         for(int i = bounding_rect.y; i < bounding_rect.y + bounding_rect.height; i++)
 	{
 	    for(int j = bounding_rect.x; j < bounding_rect.x + bounding_rect.width; j++)
 	    {
-   		if (cloud.at(j,i).z < h){
+   		if (cloud.at(j,i).z > h){
 		    h = cloud.at(j,i).z;
 		}
 	    }
@@ -206,7 +208,7 @@ public:
 
 	object_transform(bounding_rect_o, h);
    }
-  
+
    float alpha = 0.5;
    float beta = ( 1.0 - alpha );
    cv::addWeighted( cv_ptr->image, alpha, img, beta, 0.0, cv_ptr->image);
@@ -225,30 +227,24 @@ void cloud_cb(const sensor_msgs::PointCloud2::ConstPtr& msg)
 {
 
 sensor_msgs::PointCloud2 tmcloud;
-ctrtmp++;
-if(ctrtmp >= 10){
+//ctrtmp++;
+//if(ctrtmp >= 10){
     try {
-    	//listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
-    	//listener.lookupTransform("/world", "/camera_link", ros::Time(0), tmptransform);
         ros::Time tmptime = ros::Time::now();
-  	cloudlistener.waitForTransform("/camera_rgb_optical_frame", "/world", tmptime, ros::Duration(10.0) );
-	cloudlistener.lookupTransform("/camera_rgb_optical_frame", "/world", tmptime, cloudtransform);
+  	cloudlistener.waitForTransform( "/world", "/camera_rgb_optical_frame",tmptime, ros::Duration(10.0) );
+	cloudlistener.lookupTransform( "/world","/camera_rgb_optical_frame", tmptime, cloudtransform);
     } catch (tf::TransformException ex) {
     	ROS_ERROR("%s",ex.what());
     }
-  //cloud = *msg;
-  //pcl_ros::transformPointCloud(*msg,tmcloud, cloudtransform);
-  //pcl_ros::transformPointCloud("/world", *msg,cloud, listener);
-  //std::cout << "X " << cloud << std::endl;
+
 
   geometry_msgs::TransformStamped geotransform;
   tf::transformStampedTFToMsg(cloudtransform, geotransform);
-//geotransform.transform.translation.x -= 3;
-//geotransform.transform.translation.y -= 2;
-//geotransform.transform.translation.z -= 1;
-  tf2::doTransform (*msg, tmcloud, geotransform); 
-  ctrtmp = 0;
 
+  tf2::doTransform (*msg, tmcloud, geotransform); 
+ // ctrtmp = 0;
+  
+  cloud_pub.publish(tmcloud);
 
 
     pcl::PCLPointCloud2 pcl_pc2;
@@ -258,10 +254,10 @@ if(ctrtmp >= 10){
     
     cloud = *temp_cloud;
 
-std::cout << "x " << cloud.at(200,200).x << std::endl;
-std::cout << "y " << cloud.at(200,200).y << std::endl;
-std::cout << "z " << cloud.at(200,200).z << std::endl;    
-}
+//std::cout << "50"<< " x: " << cloud.at(300, 50).x << " y: " << cloud.at(300, 50).y << " z: " << cloud.at(300, 50).z << std::endl;
+//std::cout << "180"<< " x: " << cloud.at(300, 180).x << " y: " << cloud.at(300, 180).y << " z: " << cloud.at(300, 180).z << std::endl;
+//std::cout << "------------------" <<  std::endl;  
+//}
 }
 
 //MODE calculator
@@ -345,25 +341,32 @@ void object_transform(cv::Rect bounding_rect, float h){
 
    if(clX != clX || clY != clY){}
    else{
-
+/*
     ros::Rate rate(10.0); 
     try {
-    	listener.waitForTransform("/world", "/camera_link", ros::Time(0), ros::Duration(10.0) );
-    	listener.lookupTransform("/world", "/camera_link", ros::Time(0), tmptransform);
+	ros::Time tmptime = ros::Time::now();
+    	listener.waitForTransform("/world", "/camera_link", tmptime, ros::Duration(10.0) );
+    	listener.lookupTransform("/world", "/camera_link", tmptime, tmptransform);
     } catch (tf::TransformException ex) {
     	ROS_ERROR("%s",ex.what());
     }
-    
+ */   
 
     //transform.setOrigin(tf::Vector3(clX+0.05, -clY-0.01, -clH));
+    //transform.setOrigin(tf::Vector3(clX, clY, clH));
+    
+    //Hier wird der Verschiebungsfehler rausgerechnet!! 
+    clX = clX+((clX-0.33)*0.085);
+    
     transform.setOrigin(tf::Vector3(clX, clY, clH));
     
     transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
 		
     //transform *= tmptransform;
-    //br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
-    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
+    //br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link","/object"));
 
+    
     std::cout << "X " << clX << " Y " << clY << " Z " << clH << std::endl;
      
     arrCtr++;
@@ -379,6 +382,9 @@ protected:
   image_transport::ImageTransport it_;
   image_transport::Subscriber image_sub_;
   image_transport::Publisher image_pub_;
+  //sensor_msgs::PointCloud2::Publisher cloud_pub;
+ros::NodeHandle nh3;
+ros::Publisher cloud_pub;
 
   ros::NodeHandle dnh_;
   image_transport::ImageTransport dit_;
@@ -390,7 +396,7 @@ protected:
   bool dist[640][480];
 
   float search_dist[2];
-  const static int ms = 50; //Mittel
+  const static int ms = 20; //Mittel
   int medArrayX[ms];
   int medArrayY[ms];
   int medArrayZ[ms];

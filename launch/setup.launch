@@ -40,7 +40,12 @@
     <arg name="config" value="true" />
   </include>
 
-<!-- connect to hand 
-  <node name="SModelTcpNode" pkg="robotiq_s_model_control" type="spawner" args="192.168.1.11"/>
--->
+<!-- connect to hand -->
+  <node name="robotiqSModel" pkg="robotiq_s_model_control" type="SModelTcpNode" args="192.168.1.11" respawn="true"/>
+<!-- publish hand states -->
+<node name="robotiq_s_model_joint_state_publisher" pkg="robotiq_s_model_joint_state_publisher" type="robotiq_s_model_joint_state_publisher.py" respawn="true"/>
+
+<!-- start ur5actionclient -->
+<node name="PlaceObject" pkg="project15_manipulation" type="cppActionServerPlaceObject"  respawn="true"/>
+
 </launch>

@@ -66,15 +66,21 @@ public:
         robotiq_s_model_control::SModel_robot_output close_command;
         close_command.rACT = 1;
         close_command.rGTO = 1;
+	close_command.rICS = 1;
         close_command.rPRA = 255;
-        close_command.rSPA = 255;
+        close_command.rSPA = 100;
         close_command.rFRA = 50;
+	close_command.rPRS = 255;
+	close_command.rSPS = 255;
         robotiq_s_model_control::SModel_robot_output open_command;
         open_command.rACT = 1;
         open_command.rGTO = 1;
+	open_command.rICS = 1;
         open_command.rPRA = 0;
         open_command.rSPA = 255;
         open_command.rFRA = 50;
+	open_command.rPRS = 0;
+	open_command.rSPS = 255;
 
 
         group.setPlannerId("RRTConnectkConfigDefault");

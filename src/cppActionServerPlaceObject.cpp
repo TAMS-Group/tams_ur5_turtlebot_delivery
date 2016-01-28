@@ -106,8 +106,8 @@ public:
         pose_place.orientation.y = 0.5;
         pose_place.orientation.z = -0.5;
         pose_place.orientation.w = 0.5;
-        pose_place.position.x = 0.35;
-        pose_place.position.y = 1.35;
+        pose_place.position.x = 0.30;
+        pose_place.position.y = 1.30;
         pose_place.position.z = 0.9;
 
 
@@ -116,8 +116,8 @@ public:
         pose_in_between.orientation.y = 0.5;
         pose_in_between.orientation.z = -0.5;
         pose_in_between.orientation.w = 0.5;
-        pose_in_between.position.x = 0.35;
-        pose_in_between.position.y = 1.35;
+        pose_in_between.position.x = 0.30;
+        pose_in_between.position.y = 1.30;
         pose_in_between.position.z = 1.1;
 
 

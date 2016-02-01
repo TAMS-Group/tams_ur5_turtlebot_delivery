@@ -58,8 +58,8 @@ public:
 
     //cv::namedWindow(OPENCV_WINDOW);
 
-    search_dist[0] = 0.78;
-    search_dist[1] = 0.73;
+    search_dist[0] = 0.76;
+    search_dist[1] = 0.67;
 
 
     ctrtmp = 0;
@@ -147,8 +147,8 @@ public:
 	 img = cv::Scalar::all(0);
  	cv::Scalar color( 255,255,255);
  	cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
-        bounding_rect.y += 30;
-	bounding_rect.height -= 30;
+        bounding_rect.y += 40;
+	bounding_rect.height -= 40;
  	cv::rectangle(img, bounding_rect,  cv::Scalar(0,255,0),1, 8,0);  
 
     	 
@@ -356,7 +356,7 @@ void object_transform(cv::Rect bounding_rect, float h){
     //transform.setOrigin(tf::Vector3(clX, clY, clH));
     
     //Hier wird der Verschiebungsfehler rausgerechnet!! 
-    clX = clX+((clX-0.33)*0.085);
+    //clX = clX+((clX-0.33)*0.085)+0.01;
     
     transform.setOrigin(tf::Vector3(clX, clY, clH));
     
@@ -396,7 +396,7 @@ ros::Publisher cloud_pub;
   bool dist[640][480];
 
   float search_dist[2];
-  const static int ms = 20; //Mittel
+  const static int ms = 5; //Mittel
   int medArrayX[ms];
   int medArrayY[ms];
   int medArrayZ[ms];

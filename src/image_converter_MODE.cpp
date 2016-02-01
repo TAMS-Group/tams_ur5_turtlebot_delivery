@@ -275,7 +275,7 @@ float modeFCalc(float array[], int cnt)
 void object_transform(cv::Rect bounding_rect, float h){
     int x = bounding_rect.x + (bounding_rect.width/2);
     int y = bounding_rect.y + (bounding_rect.height/2);
-    int h_int = (int)(h*100.0); 
+/*    int h_int = (int)(h*100.0); 
    	
    medArrayX[arrCtr] = x;
    medArrayY[arrCtr] = y;
@@ -294,10 +294,15 @@ void object_transform(cv::Rect bounding_rect, float h){
    }
 
    float z = (float)mode_z;
-
+   
    float clX = cloud.at(mode_x,mode_y).x;
    float clY = cloud.at(mode_x,mode_y).y;
    float clH = z/100.0;
+
+*/
+   float clX = cloud.at(x,y).x;
+   float clY = cloud.at(x,y).y;
+   float clH = h;
     
    if(clX != clX || clY != clY){}
    else{

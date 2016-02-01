@@ -51,7 +51,7 @@ public:
     cloud_pub = nh3.advertise<sensor_msgs::PointCloud2>("alignedcloud", 1);
     sub = nh.subscribe("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);    
 
-    search_dist[0] = 0.76;
+    search_dist[0] = 0.73;
     search_dist[1] = 0.67;
 
     ctrtmp = 0;
@@ -250,6 +250,12 @@ int modeCalc(int array[], int cnt)
     {        
 	if(IntMap[it->first] > IntMap[max] ) max = it->first;
     }
+
+    for(std::map<int,int>::const_iterator it = IntMap.begin(); it != IntMap.end(); ++it)
+	{
+    	std::cout << it->first << " " << it->second << std::endl;
+	}
+
     return max;
 }
 
@@ -275,17 +281,19 @@ float modeFCalc(float array[], int cnt)
 void object_transform(cv::Rect bounding_rect, float h){
     int x = bounding_rect.x + (bounding_rect.width/2);
     int y = bounding_rect.y + (bounding_rect.height/2);
-/*    int h_int = (int)(h*100.0); 
+    int h_int = (int)(h*100.0); 
    	
    medArrayX[arrCtr] = x;
    medArrayY[arrCtr] = y;
    medArrayZ[arrCtr] = h_int;
-   	
+   std::cout << "für x" << std::endl;
    int mode_x = modeCalc(medArrayX, relevantArrayIndices);
+std::cout << "für y" << std::endl;
    int mode_y = modeCalc(medArrayY, relevantArrayIndices);
+std::cout << "für z" << std::endl;
    int mode_z = modeCalc(medArrayZ, relevantArrayIndices);
 
-   if(relevantArrayIndices > ms-1){
+   if(relevantArrayIndices >= ms-1){
 	relevantArrayIndices = ms-1;
    }
 
@@ -299,12 +307,13 @@ void object_transform(cv::Rect bounding_rect, float h){
    float clY = cloud.at(mode_x,mode_y).y;
    float clH = z/100.0;
 
-*/
-   float clX = cloud.at(x,y).x;
-   float clY = cloud.at(x,y).y;
-   float clH = h;
-    
-   if(clX != clX || clY != clY){}
+
+ // float clX = cloud.at(x,y).x;
+ //  float clY = cloud.at(x,y).y;
+ //  float clH = h;
+    std::cout << "läuft" << "X " << clX << " Y " << clY << " Z " << clH << std::endl;;
+
+   if(clX != clX || clY != clY || clX <= 0 || clY <= 0 || clH <= 0){}
    else{
     
     transform.setOrigin(tf::Vector3(clX, clY, clH));

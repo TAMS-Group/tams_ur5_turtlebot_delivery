@@ -1,71 +1,87 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
-#include "std_msgs/String.h"
 #include <apriltags_ros/AprilTagDetectionArray.h>
 
+class CameraPositioner {
+private:
+   ros::Subscriber sub;
 
-void pose_detection(const apriltags_ros::AprilTagDetectionArray::ConstPtr& msg)
-{
+   // TF communication channels
+   tf::TransformListener listener;
+   tf::TransformBroadcaster br;
 
-  tf::TransformBroadcaster br;
-  tf::StampedTransform transform;
-  tf::StampedTransform tmpTransform;
-  
-  tf::Quaternion q;
-  transform.setOrigin(tf::Vector3(0,0,0));
+   // constant transforms
+   tf::StampedTransform optical_transform;
+   tf::StampedTransform world_tag_transform;
 
-  tf::TransformListener listener;
+   // latest measured position of the camera
+   tf::Transform world_camera_transform;
+   ros::Time latest_detection_time;
 
-  ros::Rate rate(10.0); 
-  try {
-    listener.waitForTransform("/world", "/floor", ros::Time(0), ros::Duration(10.0) );
-    listener.lookupTransform("/world", "/floor", ros::Time(0), transform);
-    
-    listener.waitForTransform("/floor", "/wall", ros::Time(0), ros::Duration(10.0) );
-    listener.lookupTransform("/floor", "/wall",  ros::Time(0), tmpTransform);
-    transform *= tmpTransform;    
+   // for successful initialization the apriltag has to be detected _once_
+   bool initialized;
 
-    listener.waitForTransform("/wall", "/april_tag_ur5", ros::Time(0), ros::Duration(10.0) );
-    listener.lookupTransform("/wall", "/april_tag_ur5",  ros::Time(0), tmpTransform);
-    transform *= tmpTransform;
-    q.setRPY(1.57079,0,1.57079);
-    transform.setRotation(q);
+public:
+   CameraPositioner() : initialized(false)
+   {
+      ros::NodeHandle node;
+      getConstantTransforms();
+      sub = node.subscribe("tag_detections", 1, &CameraPositioner::callback, this);
+   }
 
-    listener.waitForTransform("/tag_0", "/camera_rgb_optical_frame", ros::Time(0), ros::Duration(10.0) );    
-    listener.lookupTransform("/tag_0", "/camera_rgb_optical_frame",  ros::Time(0), tmpTransform);
-    transform *= tmpTransform;
+   void getConstantTransforms(){
+      while(true){
+         try {
+            listener.waitForTransform("/world", "/april_tag_ur5", ros::Time(0), ros::Duration(5.0) );
+            listener.lookupTransform("/world", "/april_tag_ur5", ros::Time(0), world_tag_transform);
+            tf::Quaternion q;
+            q.setRPY(1.57079,0,1.57079);
+            world_tag_transform.setRotation(q);
+            break;
+         }
+         catch(...){}
+         ROS_WARN_THROTTLE(10, "Waiting for world->april_tag_ur5 transform");
+      }
 
-    listener.waitForTransform("/camera_rgb_optical_frame", "/camera_rgb_frame", ros::Time(0), ros::Duration(10.0) );    
-    listener.lookupTransform("/camera_rgb_optical_frame", "/camera_rgb_frame",  ros::Time(0), tmpTransform);
-    transform *= tmpTransform;
+      while(true){
+         try {
+            listener.waitForTransform("/camera_rgb_optical_frame", "/camera_link", ros::Time(0), ros::Duration(5.0) );
+            listener.lookupTransform("/camera_rgb_optical_frame", "/camera_link",  ros::Time(0), optical_transform);
+            break;
+         }
+         catch(...){}
+         ROS_WARN_THROTTLE(10, "Waiting for camera_rgb_optical_frame->camera_link transform");
+      }
+   }
 
-    listener.waitForTransform("/camera_rgb_frame", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
-    listener.lookupTransform("/camera_rgb_frame", "/camera_link",  ros::Time(0), tmpTransform);
-    transform *= tmpTransform;
+   void callback(const apriltags_ros::AprilTagDetectionArray& msg){
+      // if we got a valid tag detection, update world_camera_transform
+      if(msg.detections.size() == 1 && msg.detections[0].id == 0){
+         tf::Transform tag_transform;
+         tf::poseMsgToTF(msg.detections[0].pose.pose, tag_transform);
+         world_camera_transform= world_tag_transform * tag_transform.inverse() * optical_transform;
+         if(!initialized){
+            ROS_INFO("camera positioner is running");
+            initialized = true;
+         }
+         latest_detection_time = msg.detections[0].pose.header.stamp;
+      }
 
+      if(ros::Time::now() - latest_detection_time > ros::Duration(20.0)){
+         ROS_WARN_THROTTLE(5, "Didn't detect apriltag for camera position update in 20 seconds. The camera might have moved in the meanwhile.");
+      }
 
-    //listener.waitForTransform("/tag_0", "/camera_link", ros::Time(0), ros::Duration(10.0) );    
-    //listener.lookupTransform("/tag_0", "/camera_link",  ros::Time(0), tmpTransform);
-    //transform *= tmpTransform;
-
-    //listener.waitForTransform("/camera_link", "/camera_rgb_frame", ros::Time(0), ros::Duration(10.0) );    
-    //listener.lookupTransform("/camera_link", "/camera_rgb_frame",  ros::Time(0), tmpTransform);
-    //transform *= tmpTransform;
-    
-
-  } catch (tf::TransformException ex) {
-    ROS_ERROR("%s",ex.what());
-  }
-
-  br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/camera_link"));
-}
-
+      // if we measured the camera's position successfully, publish it
+      if(initialized){
+         br.sendTransform(tf::StampedTransform(world_camera_transform, ros::Time::now(), "/world", "/camera_link"));
+      }
+   }
+};
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "camera_position_node");
-  ros::NodeHandle node;
-  ros::Subscriber sub = node.subscribe("tag_detections", 1000, pose_detection);
+  CameraPositioner cam_pos;
   ros::spin();
   return 0;
 };

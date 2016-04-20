@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometric_shapes
   moveit_ros_planning_interface
   tf
+  project15_coordination
+  robotiq_s_model_control
 )
 
 find_package(cmake_modules REQUIRED)

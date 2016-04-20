@@ -10,9 +10,12 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs 
 	genmsg
 	tf
+	tf2
+	tf2_sensor_msgs
+	tf2_ros
 	sensor_msgs
 	pcl_conversions
-        pcl_ros
+	pcl_ros
 	#pcl_msgs
 	cv_bridge
 	image_transport)
@@ -117,12 +120,9 @@ catkin_package(
   pcl_ros_tf
   CATKIN_DEPENDS 
 	pcl_conversions
-   #	pcl_msgs
   DEPENDS 
 	PCL
 	opencv
-
-
 )
 
 ###########
@@ -214,4 +214,3 @@ target_link_libraries(image_converter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(image_converter_MODE src/image_converter_MODE.cpp)
 target_link_libraries(image_converter_MODE ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-

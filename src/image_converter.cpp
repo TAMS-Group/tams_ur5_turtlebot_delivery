@@ -23,7 +23,7 @@
 #include <tf/transform_broadcaster.h>
 
 
-static const std::string OPENCV_WINDOW = "Image window";
+//static const std::string OPENCV_WINDOW = "Image window";
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
@@ -43,7 +43,7 @@ public:
   // Create a ROS subscriber for the input point cloud
     sub = nh.subscribe<PointCloud>("/camera/depth/points", 1, &ImageConverter::cloud_cb, this);
     
-    cv::namedWindow(OPENCV_WINDOW);
+    //cv::namedWindow(OPENCV_WINDOW);
 
     search_dist[0] = 1.90;
     search_dist[1] = 1.80;
@@ -52,6 +52,7 @@ public:
     for (int i = 0; i <= ms; i++){
 	medArrayX[i] = 0;
 	medArrayY[i] = 0;
+  	medArrayZ[i] = 0;
     }
 
   }
@@ -60,7 +61,7 @@ public:
 //Destruktor
   ~ImageConverter()
   {
-    cv::destroyWindow(OPENCV_WINDOW);
+    //cv::destroyWindow(OPENCV_WINDOW);
   }
 
 //Callback RGB Image
@@ -129,7 +130,11 @@ public:
 	 img = cv::Scalar::all(0);
  	cv::Scalar color( 255,255,255);
  	cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
+        bounding_rect.y += 60;
+	bounding_rect.height -= 60;
  	cv::rectangle(img, bounding_rect,  cv::Scalar(0,255,0),1, 8,0);  
+
+    	 
 
 //***************************
 // Bounding box around object
@@ -192,8 +197,8 @@ public:
    cv::addWeighted( cv_ptr->image, alpha, img, beta, 0.0, cv_ptr->image);
  
    // Output modified video stream
-   cv::imshow(OPENCV_WINDOW, cv_ptr->image);
-   cv::waitKey(3);
+   //cv::imshow(OPENCV_WINDOW, cv_ptr->image);
+   //cv::waitKey(3);
 
    image_pub_.publish(cv_ptr->toImageMsg());
 
@@ -210,19 +215,28 @@ void object_transform(cv::Rect bounding_rect, float h){
     int x = bounding_rect.x + (bounding_rect.width/2);
     int y = bounding_rect.y + (bounding_rect.height/2);
     
-    medArrayX[ms] -= medArrayX[arrCtr];
+   medArrayX[ms] -= medArrayX[arrCtr];
    medArrayX[arrCtr] = x;
    medArrayX[ms] += medArrayX[arrCtr];
    medArrayY[ms] -= medArrayY[arrCtr];
    medArrayY[arrCtr] = y;
    medArrayY[ms] += medArrayY[arrCtr];
+   medArrayZ[ms] -= medArrayZ[arrCtr];
+   medArrayZ[arrCtr] = h;
+   medArrayZ[ms] += medArrayZ[arrCtr];
    
-   
+
+
+
    if(arrCtr == ms-1){
    	arrCtr = 0;
    }
    x = medArrayX[ms]/ms;
    y = medArrayY[ms]/ms;
+   
+   std::cout << "X " << x << " Y " << y << std::endl;
+   
+   //h = medArrayZ[ms]/ms;
 
    float clX = cloud.at(x,y).x;
    float clY = cloud.at(x,y).y;
@@ -241,16 +255,14 @@ void object_transform(cv::Rect bounding_rect, float h){
     
 
 
-    //if(x > 0 && y > 0){
-	//transform.setOrigin(tf::Vector3(h, -cloud.at(x,y).x-0.03, -cloud.at(x,y).y));
-	transform.setOrigin(tf::Vector3(clX+0.03, -clY, -h));
-	transform.setRotation( tf::Quaternion(0, 0, 0, 1) );	
-   // }
+	transform.setOrigin(tf::Vector3(clX+0.05, -clY-0.02, -h));
+		
 
-    //if(transform.getOrigin().getZ() != 0){
         transform *= tmptransform;
-    	//br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
+        transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
 	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
+    	//br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/camera_link", "/object"));
+	
 	//ROS_INFO("X: %f Y: %f Z: %f", transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ());
     arrCtr++;
     }
@@ -275,9 +287,10 @@ protected:
   bool dist[640][480];
 
   float search_dist[2];
-  const static int ms = 10;
+  const static int ms = 50; //Mittel
   int medArrayX[ms+1];
   int medArrayY[ms+1];
+  int medArrayZ[ms+1];
   int arrCtr;
 
   tf::StampedTransform tmptransform;

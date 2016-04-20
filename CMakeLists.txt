@@ -36,9 +36,6 @@ include_directories(${PCL_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 link_directories(${PCL_LIBRARY_DIRS})
 
-add_executable(camera_position_node src/camera_position_node.cpp)
-target_link_libraries(camera_position_node ${catkin_LIBRARIES})
-
 add_executable(image_converter src/image_converter.cpp)
 target_link_libraries(image_converter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 

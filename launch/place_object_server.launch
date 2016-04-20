@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find tams_ur5_setup_moveit_config)/launch/move_group.launch"/>
+
+  <node name="PlaceObject" pkg="project15_manipulation" type="cppActionServerPlaceObject" respawn="true" output="screen"/>
+</launch>

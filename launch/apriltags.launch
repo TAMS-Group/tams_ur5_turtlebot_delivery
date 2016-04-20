@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="project15_objectrecognition" type="image_converter_MODE" name="image_converter_MODE" output="screen"/>
-</launch>

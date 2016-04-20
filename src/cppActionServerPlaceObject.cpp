@@ -106,13 +106,8 @@ public:
 	dur5.sleep();
 	std::cout << "nach dem 5 sec schlafen" << std::endl;
 
-        group.setPlannerId("RRTConnectkConfigDefault");
-        group.setPlanningTime(60);
-        group.setNumPlanningAttempts(10);
-
         group.clearPoseTargets();
         group.clearPathConstraints();
-
 
         geometry_msgs::Pose pose_start;
         pose_start.orientation.x = 0.5;

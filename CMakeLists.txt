@@ -39,4 +39,4 @@ add_dependencies(
   PlaceObjectActionClient
   ${project15_coordination_EXPORTED_TARGETS}
 )
-install(TARGETS PlaceObjectActionServer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS PlaceObjectActionClient DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

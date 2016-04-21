@@ -152,10 +152,19 @@ public:
         std::vector<std::string> object_ids;
         object_ids.push_back(collision_turtle.id);
 
-
+    
+        std::vector<double> joint_values;	
+        joint_values.push_back(1.7597872018814087); // shoulder_pan
+	joint_values.push_back(-0.4279082457171839); // shoulder_lift
+	joint_values.push_back(-1.3920157591449183); // elbow
+	joint_values.push_back(-1.3206680456744593); // wrist_1
+	joint_values.push_back(1.38164222240448); // wrist_2
+	joint_values.push_back(1.5707813501358032); // wrist_3
 
         ROS_INFO("bewege zu startzustand");
-        group.setPoseTarget(pose_start);
+
+        group.setJointValueTarget(joint_values);
+        //group.setPoseTarget(pose_start);
         bool success = group.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
@@ -395,7 +404,7 @@ public:
 	actionserver_.setSucceeded(result_);
 
         ROS_INFO("bewege zu endzustand");
-        group.setPoseTarget(pose_start);
+        group.setJointValueTarget(joint_values);
         success = group.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");

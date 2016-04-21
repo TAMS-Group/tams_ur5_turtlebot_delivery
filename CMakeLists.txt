@@ -25,18 +25,18 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(cppActionServerPlaceObject src/cppActionServerPlaceObject.cpp)
-target_link_libraries(cppActionServerPlaceObject ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(PlaceObjectActionServer src/PlaceObjectActionServer.cpp)
+target_link_libraries(PlaceObjectActionServer ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 add_dependencies(
-  cppActionServerPlaceObject
+  PlaceObjectActionServer
   ${project15_coordination_EXPORTED_TARGETS}
 )
-install(TARGETS cppActionServerPlaceObject DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS PlaceObjectActionServer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-add_executable(cppActionClientPlaceObject src/cppActionClientPlaceObject.cpp)
-target_link_libraries(cppActionClientPlaceObject ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(PlaceObjectActionClient src/PlaceObjectActionClient.cpp)
+target_link_libraries(PlaceObjectActionClient ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 add_dependencies(
-  cppActionClientPlaceObject
+  PlaceObjectActionClient
   ${project15_coordination_EXPORTED_TARGETS}
 )
-install(TARGETS cppActionServerPlaceObject DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS PlaceObjectActionServer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

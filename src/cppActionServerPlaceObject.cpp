@@ -109,17 +109,6 @@ public:
         group.clearPoseTargets();
         group.clearPathConstraints();
 
-        geometry_msgs::Pose pose_start;
-        pose_start.orientation.x = 0.5;
-        pose_start.orientation.y = 0.5;
-        pose_start.orientation.z = -0.5;
-        pose_start.orientation.w = 0.5;
-        pose_start.position.x = 0.74;
-        pose_start.position.y = 0.56;
-        pose_start.position.z = 1.2;
-
-
-
 	double turtlehoehe = 0.42;
 
         geometry_msgs::Pose pose_turtle;
@@ -152,19 +141,9 @@ public:
         std::vector<std::string> object_ids;
         object_ids.push_back(collision_turtle.id);
 
-    
-        std::vector<double> joint_values;	
-        joint_values.push_back(1.7597872018814087); // shoulder_pan
-	joint_values.push_back(-0.4279082457171839); // shoulder_lift
-	joint_values.push_back(-1.3920157591449183); // elbow
-	joint_values.push_back(-1.3206680456744593); // wrist_1
-	joint_values.push_back(1.38164222240448); // wrist_2
-	joint_values.push_back(1.5707813501358032); // wrist_3
-
         ROS_INFO("bewege zu startzustand");
 
-        group.setJointValueTarget(joint_values);
-        //group.setPoseTarget(pose_start);
+        group.setNamedTarget("start_grab_pose");
         bool success = group.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
@@ -404,7 +383,7 @@ public:
 	actionserver_.setSucceeded(result_);
 
         ROS_INFO("bewege zu endzustand");
-        group.setJointValueTarget(joint_values);
+        group.setNamedTarget("start_grab_pose");
         success = group.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");

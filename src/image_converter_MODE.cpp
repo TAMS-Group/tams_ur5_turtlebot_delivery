@@ -45,8 +45,8 @@ public:
     cloud_pub = nh3.advertise<sensor_msgs::PointCloud2>("alignedcloud", 1);
     sub = nh.subscribe("/camera/depth_registered/points", 1, &ImageConverter::cloud_cb, this);    
 
-    search_dist[0] = 0.73;
-    search_dist[1] = 0.67;
+    search_dist[0] = 0.78;
+    search_dist[1] = 0.70;
 
     ctrtmp = 0;
 
@@ -128,8 +128,8 @@ public:
        img = cv::Scalar::all(0);
        cv::Scalar color( 255,255,255);
        cv::drawContours( dst, contours,largest_contour_index, color, CV_FILLED, 8, hierarchy ); // Draw the largest contour using previously stored index.
-        bounding_rect.y += 40;
-      bounding_rect.height -= 40;
+        bounding_rect.y += 90;
+      bounding_rect.height -= 90;
        cv::rectangle(img, bounding_rect,  cv::Scalar(0,255,0),1, 8,0);  
 
            

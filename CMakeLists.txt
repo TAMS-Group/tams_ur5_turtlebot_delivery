@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 	cv_bridge
 	image_transport)
 find_package(PCL REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 2.4.8 REQUIRED)
 
 catkin_package(
   LIBRARIES

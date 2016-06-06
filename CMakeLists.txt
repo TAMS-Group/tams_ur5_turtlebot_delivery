@@ -41,3 +41,6 @@ target_link_libraries(image_converter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(image_converter_MODE src/image_converter_MODE.cpp)
 target_link_libraries(image_converter_MODE ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(object_recognition src/object_recognition.cpp)
+target_link_libraries(object_recognition ${catkin_LIBRARIES} ${PCL_LIBRARIES})

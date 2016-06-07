@@ -7,7 +7,9 @@
 
 #include <pcl/point_types.h>
 #include <pcl/filters/crop_box.h>
-//#include <pcl/filters/passthrough.h>
+#include <pcl/segmentation/extract_clusters.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/common/common.h>
 
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 typedef pcl::PointXYZRGB Point;
@@ -51,7 +53,24 @@ class ObjectRecognition{
             box.setMax(Eigen::Vector4f(1.25,0.5,1.2,1.0));
             box.filter (*cloud_filtered);
 
-            tf_pub.publish(cloud_filtered);
+            std::vector<pcl::PointIndices> indices;
+            pcl::EuclideanClusterExtraction<Point> cluster;
+            cluster.setClusterTolerance (0.02);
+            cluster.setMinClusterSize (10);
+            cluster.setInputCloud(cloud_filtered);
+            cluster.extract(indices);
+
+            pcl::ExtractIndices<Point> extractor;
+            pcl::PointIndices::Ptr objectIndices(new pcl::PointIndices(indices[0]));
+            extractor.setIndices(objectIndices);
+            PointCloud::Ptr objectCloud;
+            extractor.filter(*objectCloud);
+
+            Eigen::Vector4f* min_pt;
+            Eigen::Vector4f* max_pt;
+            pcl::getMinMax3D (objectCloud, min_pt, max_pt);
+
+            tf_pub.publish(objectCloud);
 
         }
 

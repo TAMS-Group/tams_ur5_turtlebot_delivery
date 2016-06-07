@@ -1,11 +1,16 @@
 #include <ros/ros.h>
+#include <tf/transform_listener.h>
+
 #include <pcl_ros/point_cloud.h>
 #include <pcl_ros/transforms.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <pcl/point_types.h>
-#include <tf/transform_listener.h>
-#include <pcl/filters/passthrough.h>
+#include <pcl/filters/crop_box.h>
+//#include <pcl/filters/passthrough.h>
 
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
+typedef pcl::PointXYZRGB Point;
 
 class ObjectRecognition{
     private:
@@ -26,32 +31,28 @@ class ObjectRecognition{
             PointCloud::Ptr cloud_filtered (new PointCloud);
 
             std_msgs::Header header= pcl_conversions::fromPCL(cloud_in->header);
+            
+            tf::StampedTransform transform;        
             try {
                 tf_listener->waitForTransform("/world", header.frame_id, header.stamp, ros::Duration(5.0));
-                pcl_ros::transformPointCloud("/world", *cloud_in, *cloud_tf, *tf_listener);
+                tf_listener->lookupTransform ("/world", header.frame_id, header.stamp, transform);
             }
             catch(std::runtime_error &e){
                 return;
             }
 
-            pcl::PassThrough<pcl::PointXYZRGB> pass;
-            pass.setInputCloud (cloud_in);
-            pass.setFilterFieldName ("z");
-            pass.setFilterLimits (0.0, 1.0);
-            //pass.setFilterLimitsNegative (true);
-            pass.filter (*cloud_filtered);
+            pcl_ros::transformPointCloud (*cloud_in, *cloud_tf, transform);
+            cloud_tf->header.frame_id = "/world";
+            
+            pcl::CropBox<Point> box;
+            box.setInputCloud(cloud_tf);
+            //this is our region of interesst
+            box.setMin(Eigen::Vector4f(0.25,-0.05,0.77,1.0));
+            box.setMax(Eigen::Vector4f(1.25,0.5,1.2,1.0));
+            box.filter (*cloud_filtered);
 
             tf_pub.publish(cloud_filtered);
 
-        }
-
-        void passThroughFilter(boost::shared_ptr<PointCloud>& cloud_in,boost::shared_ptr<PointCloud>& cloud_out, std::string field, float limit_min, float limit_max, bool limit_neg){
-            pcl::PassThrough<pcl::PointXYZRGB> pass;
-            pass.setInputCloud (cloud_in);
-            pass.setFilterFieldName (field);
-            pass.setFilterLimits (limit_min, limit_max);
-            pass.setFilterLimitsNegative (limit_neg);
-            pass.filter (*cloud_out);
         }
 
         ~ObjectRecognition(){}

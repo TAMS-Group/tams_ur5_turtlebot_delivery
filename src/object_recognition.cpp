@@ -4,7 +4,7 @@
 #include <pcl/point_types.h>
 #include <tf/transform_listener.h>
 
-typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 
 class ObjectRecognition{
     private:
@@ -23,8 +23,13 @@ class ObjectRecognition{
 
         void pointCloudCb(const PointCloud::ConstPtr& cloud){
             std_msgs::Header header= pcl_conversions::fromPCL(cloud->header);
-            tf_listener->waitForTransform("/world", header.frame_id, header.stamp, ros::Duration(5.0));
-            pcl_ros::transformPointCloud("/world", *cloud, pcl_out, *tf_listener);
+            try {
+                tf_listener->waitForTransform("/world", header.frame_id, header.stamp, ros::Duration(5.0));
+                pcl_ros::transformPointCloud("/world", *cloud, pcl_out, *tf_listener);
+            }
+            catch(std::runtime_error &e){
+                return;
+            }
             tf_pub.publish(pcl_out);
         }
 

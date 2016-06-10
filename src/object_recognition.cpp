@@ -29,7 +29,7 @@ class ObjectRecognition{
     public:
         ObjectRecognition(){
             sub = nh.subscribe<PointCloud>("camera/depth_registered/points", 1, &ObjectRecognition::pointCloudCb, this);
-            cloud_pub = nh.advertise<PointCloud> ("tf_points2", 1);
+            cloud_pub = nh.advertise<PointCloud> ("object_cloud", 1);
             tf_listener = new tf::TransformListener;
             tf_pub = new tf::TransformBroadcaster;
             marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
@@ -43,21 +43,21 @@ class ObjectRecognition{
             
             tf::StampedTransform transform;        
             try {
-                tf_listener->waitForTransform("/world", header.frame_id, header.stamp, ros::Duration(5.0));
-                tf_listener->lookupTransform ("/world", header.frame_id, header.stamp, transform);
+                tf_listener->waitForTransform("/table_top", header.frame_id, header.stamp, ros::Duration(5.0));
+                tf_listener->lookupTransform ("/table_top", header.frame_id, header.stamp, transform);
             }
             catch(std::runtime_error &e){
                 return;
             }
 
             pcl_ros::transformPointCloud (*cloud_in, *cloud_tf, transform);
-            cloud_tf->header.frame_id = "/world";
+            cloud_tf->header.frame_id = "/table_top";
             
             pcl::CropBox<Point> box;
             box.setInputCloud(cloud_tf);
             //this is our region of interest
-            box.setMin(Eigen::Vector4f(0.25,-0.05,0.77,1.0));
-            box.setMax(Eigen::Vector4f(1.25,0.5,1.2,1.0));
+            box.setMin(Eigen::Vector4f(-0.5,-0.4,0.03,1.0));
+            box.setMax(Eigen::Vector4f(0.5,0.2,0.5,1.0));
             box.filter (*cloud_filtered);
 
             std::vector<pcl::PointIndices> indices;
@@ -88,10 +88,10 @@ class ObjectRecognition{
 
             transform.setOrigin(tf::Vector3(center[0], center[1], center[2]));
             transform.setRotation( tf::Quaternion(0, 0, 0, 1) );            
-            tf_pub->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world", "/object"));
+            tf_pub->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/table_top", "/object"));
 
             visualization_msgs::Marker cylinder;
-            cylinder.header.frame_id = "/world";
+            cylinder.header.frame_id = "/table_top";
             cylinder.header.stamp = ros::Time::now();
             cylinder.ns = "object";
             cylinder.action = visualization_msgs::Marker::ADD;
@@ -102,11 +102,10 @@ class ObjectRecognition{
             cylinder.pose.orientation.w = 1.0;
             cylinder.scale.x = 0.078;
             cylinder.scale.y = 0.078;
-            cylinder.scale.z = 0.26;
+            cylinder.scale.z = center[2];
             cylinder.pose.position.x = center[0];
             cylinder.pose.position.y = center[1];
-            cylinder.pose.position.z = center[2] - 0.13;
-            
+            cylinder.pose.position.z = center[2]/2;
 
             marker_pub.publish(cylinder);
             cloud_pub.publish(objectCloud);

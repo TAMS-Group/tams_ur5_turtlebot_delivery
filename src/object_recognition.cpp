@@ -125,7 +125,7 @@ class ObjectRecognition{
 
             center = tmp_vector/filtered_center.size();
 
-            if(filtered_center.size() > 5){
+            if(filtered_center.size() > 3){
                 filtered_center.erase(filtered_center.begin());
             }
         }

@@ -60,7 +60,7 @@ public:
 	ros::Duration dur5(5.0);
 
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-        moveit::planning_interface::MoveGroup group_arm("UR5_arm");
+        moveit::planning_interface::MoveGroup group_arm("arm");
 	moveit::planning_interface::MoveGroup group_gripper("gripper");
 	
         ROS_INFO("oeffne hand");
@@ -163,8 +163,8 @@ public:
         pose_before_grip.position.x = posx;
         pose_before_grip.position.y = posy;
         //pose_before_grip.position.z = 1.3;
-        pose_before_grip.position.z = beforeoffset+posz+handoffset;
-
+        //pose_before_grip.position.z = beforeoffset+posz+handoffset;
+        pose_before_grip.position.z = posz + beforeoffset;
 
 
 
@@ -175,8 +175,7 @@ public:
         pose_grab.orientation.w = 0.5;
         pose_grab.position.x = posx;
         pose_grab.position.y = posy;
-       // pose_grab.position.z = 1.19;
-       pose_grab.position.z = posz+handoffset;
+        pose_grab.position.z = posz;
 
 
         geometry_msgs::Pose pose_bottle;
@@ -197,7 +196,7 @@ public:
         pose_place.position.x = 0.315;
         pose_place.position.y = 1.310;
         //pose_place.position.z = 0.935;
-        pose_place.position.z = turtlehoehe + objekthoehe + handoffset + abwurfabstand;
+        pose_place.position.z = turtlehoehe + objekthoehe + abwurfabstand;
 
 
         geometry_msgs::Pose pose_in_between;
@@ -208,7 +207,7 @@ public:
         pose_in_between.position.x = 0.315;
         pose_in_between.position.y = 1.310;
 	//pose_in_between.position.z = 1.15;
-        pose_in_between.position.z = beforeoffset+turtlehoehe+objekthoehe+handoffset;
+        pose_in_between.position.z = beforeoffset+turtlehoehe+objekthoehe;
 
 
         moveit_msgs::CollisionObject collision_flasche;
@@ -281,7 +280,7 @@ public:
         touch_links.push_back("s_model_finger_middle_link_1");
         touch_links.push_back("s_model_finger_middle_link_2");
         touch_links.push_back("s_model_finger_middle_link_3");
-        //std::vector<std::string> touch_links = {"finger_1_link_0", "finger_1_link_1", "finger_1_link_2", "finger_1_link_3", "finger_2_link_0", "finger_2_link_1", "finger_2_link_2", "finger_2_link_3","finger_middel_link_0", "finger_middel_link_1", "finger_middel_link_2", "finger_middel_link_3"};
+
         group_arm.attachObject(collision_flasche.id, "", touch_links);
         ROS_INFO("OK");
 	std::cout << "vor dem 2 sec schlafen" << std::endl;

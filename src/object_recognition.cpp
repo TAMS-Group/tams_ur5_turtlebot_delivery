@@ -21,10 +21,11 @@ class ObjectRecognition{
     private:
         ros::NodeHandle nh;
         ros::Subscriber sub;
-        tf::TransformListener *tf_listener; 
-        ros::Publisher cloud_pub;
+        tf::TransformListener *tf_listener;
         tf::TransformBroadcaster *tf_pub;
+        ros::Publisher cloud_pub;
         ros::Publisher marker_pub;
+        std::vector<Eigen::Vector4f> filtered_center;
 
     public:
         ObjectRecognition(){
@@ -41,8 +42,8 @@ class ObjectRecognition{
 
             std_msgs::Header header= pcl_conversions::fromPCL(cloud_in->header);
             
-            tf::StampedTransform transform;        
-            try {
+            tf::StampedTransform transform;
+            try{
                 tf_listener->waitForTransform("/table_top", header.frame_id, header.stamp, ros::Duration(5.0));
                 tf_listener->lookupTransform ("/table_top", header.frame_id, header.stamp, transform);
             }
@@ -52,7 +53,7 @@ class ObjectRecognition{
 
             pcl_ros::transformPointCloud (*cloud_in, *cloud_tf, transform);
             cloud_tf->header.frame_id = "/table_top";
-            
+
             pcl::CropBox<Point> box;
             box.setInputCloud(cloud_tf);
             //this is our region of interest
@@ -86,8 +87,10 @@ class ObjectRecognition{
             Eigen::Vector4f center = (max_pt - min_pt)/2 + min_pt;
             center[2] = max_pt[2];
 
+            lowPass(center);
+
             transform.setOrigin(tf::Vector3(center[0], center[1], center[2]));
-            transform.setRotation( tf::Quaternion(0, 0, 0, 1) );            
+            transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
             tf_pub->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/table_top", "/object"));
 
             visualization_msgs::Marker cylinder;
@@ -110,6 +113,21 @@ class ObjectRecognition{
             marker_pub.publish(cylinder);
             cloud_pub.publish(objectCloud);
 
+        }
+
+        void lowPass(Eigen::Vector4f& center){
+            Eigen::Vector4f tmp_vector;
+
+            filtered_center.push_back(center);
+            for(std::vector<Eigen::Vector4f>::iterator it = filtered_center.begin() ; it != filtered_center.end(); ++it){
+                tmp_vector = tmp_vector + *it;
+            }
+
+            center = tmp_vector/filtered_center.size();
+
+            if(filtered_center.size() > 5){
+                filtered_center.erase(filtered_center.begin());
+            }
         }
 
         ~ObjectRecognition(){}

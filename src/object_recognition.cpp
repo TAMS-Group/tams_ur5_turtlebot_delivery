@@ -57,8 +57,8 @@ class ObjectRecognition{
             pcl::CropBox<Point> box;
             box.setInputCloud(cloud_tf);
             //this is our region of interest
-            box.setMin(Eigen::Vector4f(-0.5,-0.4,0.03,1.0));
-            box.setMax(Eigen::Vector4f(0.5,0.2,0.5,1.0));
+            box.setMin(Eigen::Vector4f(-0.45,-0.35,0.05,1.0));
+            box.setMax(Eigen::Vector4f(0.5,0.15,0.5,1.0));
             box.filter (*cloud_filtered);
 
             std::vector<pcl::PointIndices> indices;

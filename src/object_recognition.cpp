@@ -26,6 +26,7 @@ class ObjectRecognition{
         ros::Publisher cloud_pub;
         ros::Publisher marker_pub;
         std::list<Eigen::Vector4f> filtered_center;
+        visualization_msgs::Marker cylinder;
 
     public:
         ObjectRecognition(){
@@ -69,7 +70,9 @@ class ObjectRecognition{
             cluster.extract(indices);
 
             if(indices.size() == 0){
-                ROS_WARN_THROTTLE(10, "No object detected in ROI");
+                cylinder.ns = "object";
+                cylinder.action = visualization_msgs::Marker::DELETE;
+                marker_pub.publish(cylinder);
                 return;
             }
 
@@ -93,7 +96,6 @@ class ObjectRecognition{
             transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
             tf_pub->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/table_top", "/object"));
 
-            visualization_msgs::Marker cylinder;
             cylinder.header.frame_id = "/table_top";
             cylinder.header.stamp = ros::Time::now();
             cylinder.ns = "object";

@@ -25,7 +25,7 @@ class ObjectRecognition{
         tf::TransformBroadcaster *tf_pub;
         ros::Publisher cloud_pub;
         ros::Publisher marker_pub;
-        std::vector<Eigen::Vector4f> filtered_center;
+        std::list<Eigen::Vector4f> filtered_center;
 
     public:
         ObjectRecognition(){
@@ -116,17 +116,17 @@ class ObjectRecognition{
         }
 
         void lowPass(Eigen::Vector4f& center){
-            Eigen::Vector4f tmp_vector;
+            Eigen::Vector4f tmp_vector(0,0,0,1);
 
             filtered_center.push_back(center);
-            for(std::vector<Eigen::Vector4f>::iterator it = filtered_center.begin() ; it != filtered_center.end(); ++it){
+            for(std::list<Eigen::Vector4f>::iterator it = filtered_center.begin() ; it != filtered_center.end(); ++it){
                 tmp_vector = tmp_vector + *it;
             }
 
-            center = tmp_vector/filtered_center.size();
+            center = tmp_vector/double(filtered_center.size());
 
             if(filtered_center.size() > 3){
-                filtered_center.erase(filtered_center.begin());
+                filtered_center.pop_front();
             }
         }
 

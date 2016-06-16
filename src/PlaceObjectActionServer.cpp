@@ -126,10 +126,9 @@ public:
         tf::StampedTransform transform;
 
         try {
-            listener.waitForTransform("/world", "/object", ros::Time(0), ros::Duration(20.0) );
+            listener.waitForTransform("/world", "/object", ros::Time(0), ros::Duration(10.0) );
             listener.lookupTransform("/world", "/object", ros::Time(0), transform);
         } catch (tf::TransformException ex) {
-            ROS_ERROR("%s",ex.what());
             failed();
             return;
         }
@@ -324,9 +323,14 @@ public:
 
 	ROS_INFO("oeffne hand");
 	group_gripper.setNamedTarget("open");
-	success = group_gripper.move();
+        success = group_gripper.move();
         if(!success) {
-            ROS_INFO("FAILED SHUTTING DOWN");
+            //if hand doesn't open, the hand will move to the position in between 
+            //to not distroy the holder for the can, when the turtlebot moves away
+            ROS_ERROR("Loading failed, arm moves in a safe position. The node will shut down, please restart.");
+            group_arm.setPoseTarget(pose_in_between);
+            group_arm.move();
+            ros::shutdown();
             failed();
             return;
         }

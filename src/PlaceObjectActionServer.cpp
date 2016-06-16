@@ -33,7 +33,7 @@ protected:
     project15_coordination::PlaceObjectFeedback feedback_;
     project15_coordination::PlaceObjectResult result_;
 
-    bool success;    
+    bool success;
 
     ros::Publisher hand_pub;
 
@@ -71,7 +71,7 @@ public:
             failed();
             return;
         }
-       
+
         group_arm.clearPoseTargets();
         group_arm.clearPathConstraints();
 
@@ -110,6 +110,7 @@ public:
         ROS_INFO("bewege zu startzustand");
 
         group_arm.setNamedTarget("start_grab_pose");
+        
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");

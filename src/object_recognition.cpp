@@ -25,8 +25,7 @@ class ObjectRecognition{
         tf::TransformBroadcaster *tf_pub;
         ros::Publisher cloud_pub;
         ros::Publisher marker_pub;
-        std::list<Eigen::Vector4f> filtered_center;
-        visualization_msgs::Marker cylinder;
+        std::list<Eigen::Vector4f> center_window;
 
     public:
         ObjectRecognition(){
@@ -40,9 +39,17 @@ class ObjectRecognition{
         void pointCloudCb(const PointCloud::ConstPtr& cloud_in){
             PointCloud::Ptr cloud_tf (new PointCloud);
             PointCloud::Ptr cloud_filtered (new PointCloud);
+            std_msgs::Header header = pcl_conversions::fromPCL(cloud_in->header);
 
-            std_msgs::Header header= pcl_conversions::fromPCL(cloud_in->header);
-            
+            visualization_msgs::Marker cylinder;
+            cylinder.ns = "object";
+            cylinder.header = header;
+            cylinder.header.frame_id = "/table_top";
+            cylinder.action = visualization_msgs::Marker::DELETE;
+            cylinder.type = visualization_msgs::Marker::CYLINDER;
+            cylinder.color.g = 1.0f;
+            cylinder.color.a = 1.0;
+
             tf::StampedTransform transform;
             try{
                 tf_listener->waitForTransform("/table_top", header.frame_id, header.stamp, ros::Duration(5.0));
@@ -68,10 +75,8 @@ class ObjectRecognition{
             cluster.setMinClusterSize (10);
             cluster.setInputCloud(cloud_filtered);
             cluster.extract(indices);
-
+     
             if(indices.size() == 0){
-                cylinder.ns = "object";
-                cylinder.action = visualization_msgs::Marker::DELETE;
                 marker_pub.publish(cylinder);
                 return;
             }
@@ -89,20 +94,18 @@ class ObjectRecognition{
 
             Eigen::Vector4f center = (max_pt - min_pt)/2 + min_pt;
             center[2] = max_pt[2];
+            Eigen::Vector4f variance;
 
-            lowPass(center);
+            lowPass(center, variance);
+
+            if(variance.norm() > 0.001){
+                marker_pub.publish(cylinder);
+                return;
+            }
 
             transform.setOrigin(tf::Vector3(center[0], center[1], center[2]));
             transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
             tf_pub->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/table_top", "/object"));
-
-            cylinder.header.frame_id = "/table_top";
-            cylinder.header.stamp = ros::Time::now();
-            cylinder.ns = "object";
-            cylinder.action = visualization_msgs::Marker::ADD;
-            cylinder.type = visualization_msgs::Marker::CYLINDER;
-            cylinder.color.g = 1.0f;
-            cylinder.color.a = 1.0;
 
             cylinder.pose.orientation.w = 1.0;
             cylinder.scale.x = 0.078;
@@ -111,24 +114,30 @@ class ObjectRecognition{
             cylinder.pose.position.x = center[0];
             cylinder.pose.position.y = center[1];
             cylinder.pose.position.z = center[2]/2;
+            cylinder.action = visualization_msgs::Marker::ADD;
 
             marker_pub.publish(cylinder);
-            cloud_pub.publish(objectCloud);
 
+            cloud_pub.publish(objectCloud);
         }
 
-        void lowPass(Eigen::Vector4f& center){
-            Eigen::Vector4f tmp_vector(0,0,0,1);
+        void lowPass(Eigen::Vector4f& center, Eigen::Vector4f& variance){
+            Eigen::Vector4f sum(0,0,0,0);
+            Eigen::Vector4f sum_squared(0,0,0,0);
 
-            filtered_center.push_back(center);
-            for(std::list<Eigen::Vector4f>::iterator it = filtered_center.begin() ; it != filtered_center.end(); ++it){
-                tmp_vector = tmp_vector + *it;
+            center_window.push_back(center);
+            for(std::list<Eigen::Vector4f>::iterator it = center_window.begin() ; it != center_window.end(); ++it){
+                sum = sum + *it;
+		sum_squared = sum_squared + (it->array() * (it->array())).matrix();
             }
 
-            center = tmp_vector/double(filtered_center.size());
+	    center = sum/double(center_window.size());
+            variance = sum_squared/center_window.size() - (center.array()*center.array()).matrix() ;
 
-            if(filtered_center.size() > 3){
-                filtered_center.pop_front();
+            variance[3] = 0;
+
+            if(center_window.size() > 3){
+                center_window.pop_front();
             }
         }
 

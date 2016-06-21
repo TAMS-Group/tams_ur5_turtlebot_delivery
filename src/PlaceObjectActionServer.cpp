@@ -8,6 +8,8 @@
 #include <moveit_msgs/AttachedCollisionObject.h>
 #include <moveit_msgs/CollisionObject.h>
 
+#include <moveit_msgs/ApplyPlanningScene.h>
+
 #include <ompl/base/StateValidityChecker.h>
 #include <ompl/control/StatePropagator.h>
 
@@ -35,7 +37,7 @@ protected:
 
     bool success;
 
-    ros::Publisher hand_pub;
+    ros::ServiceClient planning_scene_diff_client;
 
 public:
 
@@ -44,7 +46,8 @@ public:
         action_name_(name)
     {
         actionserver_.start();
-	hand_pub = node_handle_.advertise<robotiq_s_model_control::SModel_robot_output>("SModelRobotOutput", 10);
+        planning_scene_diff_client = node_handle_.serviceClient<moveit_msgs::ApplyPlanningScene>("apply_planning_scene");
+        planning_scene_diff_client.waitForExistence();
     }
 
     ~PlaceObjectAction(void)
@@ -56,16 +59,20 @@ public:
     {
         ros::Rate r(1);
 
-	ros::Duration dur2(2.0);
-	ros::Duration dur5(5.0);
+        ros::Duration dur5(5.0);
 
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
         moveit::planning_interface::MoveGroup group_arm("arm");
-	moveit::planning_interface::MoveGroup group_gripper("gripper");
-	
+        moveit::planning_interface::MoveGroup group_gripper("gripper");
+        
+        moveit_msgs::ApplyPlanningScene srv;
+        moveit_msgs::PlanningScene planning_scene;
+        planning_scene.is_diff = true;
+        planning_scene.robot_state.is_diff = true;
+        
         ROS_INFO("oeffne hand");
-	group_gripper.setNamedTarget("open");
-	success = group_gripper.move();
+        group_gripper.setNamedTarget("open");
+        success = group_gripper.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
             failed();
@@ -75,7 +82,10 @@ public:
         group_arm.clearPoseTargets();
         group_arm.clearPathConstraints();
 
-	double turtlehoehe = 0.42;
+
+        moveit_msgs::CollisionObject turtle;
+        turtle.header.frame_id = group_arm.getPlanningFrame();
+        turtle.id = "turtle";
 
         geometry_msgs::Pose pose_turtle;
         pose_turtle.orientation.w = 1;
@@ -83,12 +93,7 @@ public:
         pose_turtle.position.y = 1.35;
         pose_turtle.position.z = 0.21;
 
-
-
-        moveit_msgs::CollisionObject collision_turtle;
-        collision_turtle.header.frame_id = group_arm.getPlanningFrame();
-        collision_turtle.id = "turtle";
-
+        double turtlehoehe = 0.42;
 
         shape_msgs::SolidPrimitive primitive;
         primitive.type = primitive.BOX;
@@ -97,15 +102,13 @@ public:
         primitive.dimensions[1] = 0.35;
         primitive.dimensions[2] = turtlehoehe;
 
-        collision_turtle.primitives.push_back(primitive);
-        collision_turtle.primitive_poses.push_back(pose_turtle);
-        collision_turtle.operation = collision_turtle.ADD;
+        turtle.primitives.push_back(primitive);
+        turtle.primitive_poses.push_back(pose_turtle);
+        turtle.operation = turtle.ADD;
 
-        std::vector<moveit_msgs::CollisionObject> collision_objects;
-        collision_objects.push_back(collision_turtle);
-
-        std::vector<std::string> object_ids;
-        object_ids.push_back(collision_turtle.id);
+        planning_scene.world.collision_objects.push_back(turtle);
+        srv.request.scene = planning_scene;
+        planning_scene_diff_client.call(srv);
 
         ROS_INFO("bewege zu startzustand");
 
@@ -114,14 +117,15 @@ public:
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
+            removeObject(turtle);
             failed();
             return;
         }
         ROS_INFO("OK");
-	//during the last movement, the camera could have detected the arm as object
-	//make sure the vision module has enough time to detect the correct object
-	std::cout << "vor dem 5 sec schlafen" << std::endl;
-	dur5.sleep();
+        //during the last movement, the camera could have detected the arm as object
+        //make sure the vision module has enough time to detect the correct object
+        std::cout << "vor dem 5 sec schlafen" << std::endl;
+        dur5.sleep();
 
         tf::TransformListener listener;
         tf::StampedTransform transform;
@@ -130,6 +134,7 @@ public:
             listener.waitForTransform("/world", "/object", ros::Time(0), ros::Duration(10.0) );
             listener.lookupTransform("/world", "/object", ros::Time(0), transform);
         } catch (tf::TransformException ex) {
+            removeObject(turtle);
             failed();
             return;
         }
@@ -138,21 +143,18 @@ public:
         double handoffset = 0.20;
 
         double beforeoffset = 0.15;
-	double tischhoehe = 0.745;
-	double abwurfabstand = 0.06;
+        double tischhoehe = 0.745;
+        double abwurfabstand = 0.06;
 
         double posx = transform.getOrigin().getX();
         double posy = transform.getOrigin().getY();
-	double posz = transform.getOrigin().getZ();
-	
-	double objekthoehe = posz-tischhoehe;
+        double posz = transform.getOrigin().getZ();
+        
+        double objekthoehe = posz-tischhoehe;
 
         ROS_INFO("x %f", posx);
         ROS_INFO("y %f", posy);
-	ROS_INFO("y %f", posz);
-
-//  double posx = 0.93;
-//  double posy = 0.32;
+        ROS_INFO("y %f", posz);
 
 
         geometry_msgs::Pose pose_before_grip;
@@ -162,8 +164,6 @@ public:
         pose_before_grip.orientation.w = 0.5;
         pose_before_grip.position.x = posx;
         pose_before_grip.position.y = posy;
-        //pose_before_grip.position.z = 1.3;
-        //pose_before_grip.position.z = beforeoffset+posz+handoffset;
         pose_before_grip.position.z = posz + beforeoffset;
 
 
@@ -182,20 +182,16 @@ public:
         pose_bottle.orientation.w = 1;
         pose_bottle.position.x = posx;
         pose_bottle.position.y = posy;
-        //pose_bottle.position.z = 0.885;
         pose_bottle.position.z = tischhoehe + (objekthoehe/2.0);
 
 
-	
-	
-	geometry_msgs::Pose pose_place;
+        geometry_msgs::Pose pose_place;
         pose_place.orientation.x = 0.5;
         pose_place.orientation.y = 0.5;
         pose_place.orientation.z = -0.5;
         pose_place.orientation.w = 0.5;
         pose_place.position.x = 0.315;
         pose_place.position.y = 1.310;
-        //pose_place.position.z = 0.935;
         pose_place.position.z = turtlehoehe + objekthoehe + abwurfabstand;
 
 
@@ -206,37 +202,29 @@ public:
         pose_in_between.orientation.w = 0.5;
         pose_in_between.position.x = 0.315;
         pose_in_between.position.y = 1.310;
-	//pose_in_between.position.z = 1.15;
         pose_in_between.position.z = beforeoffset+turtlehoehe+objekthoehe;
 
 
-        moveit_msgs::CollisionObject collision_flasche;
-        collision_flasche.header.frame_id = group_arm.getPlanningFrame();
-        collision_flasche.id = "flasche";
+        moveit_msgs::CollisionObject can;
+        can.header.frame_id = group_arm.getPlanningFrame();
+        can.id = "can";
 
         primitive.type = primitive.BOX;
         primitive.dimensions.resize(3);
         primitive.dimensions[0] = 0.08;
         primitive.dimensions[1] = 0.08;
-        //primitive.dimensions[2] = 0.28;
-	primitive.dimensions[2] = objekthoehe;
+        primitive.dimensions[2] = objekthoehe;
 
-        collision_flasche.primitives.push_back(primitive);
-        collision_flasche.primitive_poses.push_back(pose_bottle);
-        collision_flasche.operation = collision_flasche.ADD;
+        can.primitives.push_back(primitive);
+        can.primitive_poses.push_back(pose_bottle);
+        can.operation = can.ADD;
 
-        collision_objects.push_back(collision_flasche);
-        object_ids.push_back(collision_flasche.id);
-
-
-
+        planning_scene.world.collision_objects.push_back(can);
+        srv.request.scene = planning_scene;
 
         ROS_INFO("fuege Flasche ein");
-        planning_scene_interface.addCollisionObjects(collision_objects);
+        planning_scene_diff_client.call(srv);
         ROS_INFO("OK");
-	std::cout << "vor dem 2 sec schlafen" << std::endl;
-        dur2.sleep();
-
 
 
         ROS_INFO("greifposition vorbereiten");
@@ -244,8 +232,8 @@ public:
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
-            planning_scene_interface.removeCollisionObjects(object_ids);
-	    dur2.sleep();
+            removeObject(turtle);
+            removeObject(can);
             failed();
             return;
         }
@@ -258,8 +246,8 @@ public:
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
-            planning_scene_interface.removeCollisionObjects(object_ids);
-	    dur2.sleep();
+            removeObject(turtle);
+            removeObject(can);
             failed();
             return;
         }
@@ -281,17 +269,30 @@ public:
         touch_links.push_back("s_model_finger_middle_link_2");
         touch_links.push_back("s_model_finger_middle_link_3");
 
-        group_arm.attachObject(collision_flasche.id, "", touch_links);
+        moveit_msgs::AttachedCollisionObject attached_can;
+        attached_can.link_name = "s_model_tool0";
+        attached_can.object.header.frame_id = group_arm.getPlanningFrame();
+        attached_can.object.id = "can";
+        attached_can.object.primitives.push_back(primitive);
+        attached_can.object.primitive_poses.push_back(pose_bottle);
+        attached_can.object.operation = attached_can.object.ADD;
+        attached_can.touch_links = touch_links;
+        planning_scene.robot_state.attached_collision_objects.push_back(attached_can);
+        planning_scene.world.collision_objects.clear();
+
+        removeObject(can);
+
+        srv.request.scene = planning_scene;
+        planning_scene_diff_client.call(srv);
         ROS_INFO("OK");
-	std::cout << "vor dem 2 sec schlafen" << std::endl;
-        dur2.sleep();
-
-
+        
         ROS_INFO("Schließe hand");
-	group_gripper.setNamedTarget("closed");
-	success = group_gripper.move();
+        group_gripper.setNamedTarget("closed");
+        success = group_gripper.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
+            removeObject(turtle);
+            removeObject(attached_can);
             failed();
             return;
         }
@@ -301,9 +302,8 @@ public:
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
-            group_arm.detachObject(collision_flasche.id);
-            planning_scene_interface.removeCollisionObjects(object_ids);
-	    dur2.sleep();
+            removeObject(turtle);
+            removeObject(attached_can);
             failed();
             return;
         }
@@ -314,16 +314,15 @@ public:
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
-            group_arm.detachObject(collision_flasche.id);
-            planning_scene_interface.removeCollisionObjects(object_ids);
-	    dur2.sleep();
+            removeObject(turtle);
+            removeObject(attached_can);
             failed();
             return;
         }
         ROS_INFO("OK");
 
-	ROS_INFO("oeffne hand");
-	group_gripper.setNamedTarget("open");
+        ROS_INFO("oeffne hand");
+        group_gripper.setNamedTarget("open");
         success = group_gripper.move();
         if(!success) {
             //if hand doesn't open, the hand will move to the position in between 
@@ -337,10 +336,23 @@ public:
         }
 
         ROS_INFO("Flasche abhaengen");
-        group_arm.detachObject(collision_flasche.id);
+       
+        std::vector<std::string> ids;
+        ids.push_back(attached_can.object.id);
+
+        std::map<std::string, moveit_msgs::AttachedCollisionObject> attached_objects = planning_scene_interface.getAttachedObjects(ids);
+        can = attached_objects[attached_can.object.id].object;
+
+        can.operation = can.ADD;
+        planning_scene.robot_state.attached_collision_objects.clear();
+        planning_scene.world.collision_objects.clear();
+        planning_scene.world.collision_objects.push_back(can);
+        srv.request.scene = planning_scene;
+        planning_scene_diff_client.call(srv);
+
+        removeObject(attached_can);
+
         ROS_INFO("OK");
-	std::cout << "vor dem 2 sec schlafen" << std::endl;
-        dur2.sleep();
 
 
         ROS_INFO("bewege zu Zwischenposition");
@@ -348,44 +360,61 @@ public:
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
-            group_arm.detachObject(collision_flasche.id);
-            planning_scene_interface.removeCollisionObjects(object_ids);
+            removeObject(turtle);
+            removeObject(can);
             failed();
             return;
         }
         ROS_INFO("OK");
-	
-	result_.status = 0;
-	ROS_INFO("%s: Succeeded", action_name_.c_str());
-	// set the action state to succeeded
-	actionserver_.setSucceeded(result_);
+        
+        result_.status = 0;
+        ROS_INFO("%s: Succeeded", action_name_.c_str());
+        // set the action state to succeeded
+        actionserver_.setSucceeded(result_);
 
         ROS_INFO("bewege zu endzustand");
         group_arm.setNamedTarget("start_grab_pose");
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
-            planning_scene_interface.removeCollisionObjects(object_ids);
-	    dur2.sleep();
-	    //failed();
+            removeObject(turtle);
+            removeObject(can);
+            failed();
             return;
         }
 
         ROS_INFO("entferne objekte");
-        planning_scene_interface.removeCollisionObjects(object_ids);
-	std::cout << "vor dem 2 sec schlafen" << std::endl;
-        dur2.sleep();
-
+        removeObject(turtle);
+        removeObject(can);
 
         ROS_INFO("ENDE");
 
         //*****************************ROUTINE ENDE**********************************
-        
-
-        
     }
-    
-    void failed() 
+
+    void removeObject(moveit_msgs::CollisionObject collision_object){
+        moveit_msgs::PlanningScene planning_scene;
+        collision_object.operation = collision_object.REMOVE;
+        planning_scene.world.collision_objects.push_back(collision_object);
+        planning_scene.is_diff = true;
+        planning_scene.robot_state.is_diff = true;
+        moveit_msgs::ApplyPlanningScene srv;
+        srv.request.scene = planning_scene;
+        planning_scene_diff_client.call(srv);
+    }
+
+    void removeObject(moveit_msgs::AttachedCollisionObject attached_collision_object){
+        moveit_msgs::PlanningScene planning_scene;
+        attached_collision_object.object.operation = attached_collision_object.object.REMOVE;
+        planning_scene.robot_state.attached_collision_objects.push_back(attached_collision_object);
+        planning_scene.is_diff = true;
+        planning_scene.robot_state.is_diff = true;
+        moveit_msgs::ApplyPlanningScene srv;
+        srv.request.scene = planning_scene;
+        planning_scene_diff_client.call(srv);
+    }
+
+    void failed()
     {
        ROS_INFO("%s: FAILED", action_name_.c_str());
        result_.status = 1;

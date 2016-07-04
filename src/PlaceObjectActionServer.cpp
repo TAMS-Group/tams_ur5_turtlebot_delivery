@@ -275,7 +275,6 @@ public:
         attached_can.object.id = "can";
         attached_can.object.primitives.push_back(primitive);
         attached_can.object.primitive_poses.push_back(pose_bottle);
-        pose_bottle.position.z = pose_bottle.position.z + 0.0875;
         attached_can.object.operation = attached_can.object.ADD;
         attached_can.touch_links = touch_links;
         planning_scene.robot_state.attached_collision_objects.push_back(attached_can);

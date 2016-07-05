@@ -9,6 +9,9 @@
 #include <moveit_msgs/CollisionObject.h>
 
 #include <moveit_msgs/ApplyPlanningScene.h>
+#include <moveit_msgs/GetPlanningScene.h>
+
+#include <sensor_msgs/JointState.h>
 
 #include <ompl/base/StateValidityChecker.h>
 #include <ompl/control/StatePropagator.h>
@@ -22,7 +25,7 @@
 
 #include <iostream>
 #include <stdio.h>
-
+#include <math.h>
 
 class PlaceObjectAction
 {
@@ -38,6 +41,7 @@ protected:
     bool success;
 
     ros::ServiceClient planning_scene_diff_client;
+    ros::ServiceClient get_planning_scene_client;
 
 public:
 
@@ -48,6 +52,9 @@ public:
         actionserver_.start();
         planning_scene_diff_client = node_handle_.serviceClient<moveit_msgs::ApplyPlanningScene>("apply_planning_scene");
         planning_scene_diff_client.waitForExistence();
+
+        get_planning_scene_client = node_handle_.serviceClient<moveit_msgs::GetPlanningScene>("get_planning_scene");
+        get_planning_scene_client.waitForExistence();
     }
 
     ~PlaceObjectAction(void)
@@ -109,22 +116,32 @@ public:
         srv.request.scene = planning_scene;
         planning_scene_diff_client.call(srv);
 
-        ROS_INFO("bewege zu startzustand");
 
-        group_arm.setNamedTarget("start_grab_pose");
+        moveit_msgs::GetPlanningScene::Request request;
+        moveit_msgs::GetPlanningScene::Response response;
+
+        request.components.components = request.components.ROBOT_STATE;
+
+        get_planning_scene_client.call(request, response);
+
+        if(!similarJointStates(response.scene.robot_state.joint_state, group_arm.getNamedTargetValues("start_grab_pose"))){
+            ROS_INFO("bewege zu startzustand");
+
+            group_arm.setNamedTarget("start_grab_pose");
         
-        success = group_arm.move();
-        if(!success) {
-            ROS_INFO("FAILED SHUTTING DOWN");
-            removeObject(turtle);
-            failed();
-            return;
+            success = group_arm.move();
+            if(!success) {
+                ROS_INFO("FAILED SHUTTING DOWN");
+                removeObject(turtle);
+                failed();
+                return;
+            }
+            ROS_INFO("OK");
+            //during the last movement, the camera could have detected the arm as object
+            //make sure the vision module has enough time to detect the correct object
+            std::cout << "vor dem 5 sec schlafen" << std::endl;
+            dur5.sleep();
         }
-        ROS_INFO("OK");
-        //during the last movement, the camera could have detected the arm as object
-        //make sure the vision module has enough time to detect the correct object
-        std::cout << "vor dem 5 sec schlafen" << std::endl;
-        dur5.sleep();
 
         tf::TransformListener listener;
         tf::StampedTransform transform;
@@ -407,6 +424,18 @@ public:
         moveit_msgs::ApplyPlanningScene srv;
         srv.request.scene = planning_scene;
         planning_scene_diff_client.call(srv);
+    }
+
+    bool similarJointStates(sensor_msgs::JointState joint_states, std::map<std::string, double> joint_values){
+        for(int i=0; i < joint_states.name.size(); i++){
+            if(joint_values.find(joint_states.name[i]) != joint_values.end()){
+                double rad_diff = fabs(joint_states.position[i] - joint_values.at(joint_states.name[i]));
+                if(rad_diff > 0.01){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     void failed()

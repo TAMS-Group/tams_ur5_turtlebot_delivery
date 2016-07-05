@@ -84,16 +84,15 @@ public:
 
 
         moveit_msgs::CollisionObject turtle;
-        turtle.header.frame_id = group_arm.getPlanningFrame();
+        turtle.header.frame_id = "turtlebot";
         turtle.id = "turtle";
+
+        double turtlehoehe = 0.41;
 
         geometry_msgs::Pose pose_turtle;
         pose_turtle.orientation.w = 1;
-        pose_turtle.position.x = 0.35;
-        pose_turtle.position.y = 1.35;
-        pose_turtle.position.z = 0.21;
+        pose_turtle.position.z = turtlehoehe/2;
 
-        double turtlehoehe = 0.42;
 
         shape_msgs::SolidPrimitive primitive;
         primitive.type = primitive.BOX;
@@ -139,7 +138,6 @@ public:
             return;
         }
 
-        //double handoffset = 0.19;
         double handoffset = 0.20;
 
         double beforeoffset = 0.15;
@@ -184,25 +182,22 @@ public:
         pose_bottle.position.y = posy;
         pose_bottle.position.z = tischhoehe + (objekthoehe/2.0);
 
-
-        geometry_msgs::Pose pose_place;
-        pose_place.orientation.x = 0.5;
-        pose_place.orientation.y = 0.5;
-        pose_place.orientation.z = -0.5;
-        pose_place.orientation.w = 0.5;
-        pose_place.position.x = 0.315;
-        pose_place.position.y = 1.310;
-        pose_place.position.z = turtlehoehe + objekthoehe + abwurfabstand;
+        geometry_msgs::PoseStamped pose_place;
+        pose_place.header.frame_id = "turtlebot_holder";
+        pose_place.pose.orientation.x = 0.5;
+        pose_place.pose.orientation.y = 0.5;
+        pose_place.pose.orientation.z = -0.5;
+        pose_place.pose.orientation.w = 0.5;
+        pose_place.pose.position.z += objekthoehe + abwurfabstand;
 
 
-        geometry_msgs::Pose pose_in_between;
-        pose_in_between.orientation.x = 0.5;
-        pose_in_between.orientation.y = 0.5;
-        pose_in_between.orientation.z = -0.5;
-        pose_in_between.orientation.w = 0.5;
-        pose_in_between.position.x = 0.315;
-        pose_in_between.position.y = 1.310;
-        pose_in_between.position.z = beforeoffset+turtlehoehe+objekthoehe;
+        geometry_msgs::PoseStamped pose_in_between;
+        pose_in_between.header.frame_id = "turtlebot_holder";
+        pose_in_between.pose.orientation.x = 0.5;
+        pose_in_between.pose.orientation.y = 0.5;
+        pose_in_between.pose.orientation.z = -0.5;
+        pose_in_between.pose.orientation.w = 0.5;
+        pose_in_between.pose.position.z += beforeoffset + objekthoehe;
 
 
         moveit_msgs::CollisionObject can;

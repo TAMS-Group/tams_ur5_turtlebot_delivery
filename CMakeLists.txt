@@ -31,7 +31,6 @@ add_dependencies(
   PlaceObjectActionServer
   ${project15_coordination_EXPORTED_TARGETS}
 )
-install(TARGETS PlaceObjectActionServer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_executable(PlaceObjectActionClient src/PlaceObjectActionClient.cpp)
 target_link_libraries(PlaceObjectActionClient ${catkin_LIBRARIES} ${Boost_LIBRARIES})
@@ -39,4 +38,8 @@ add_dependencies(
   PlaceObjectActionClient
   ${project15_coordination_EXPORTED_TARGETS}
 )
+
+install(TARGETS PlaceObjectActionServer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(TARGETS PlaceObjectActionClient DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

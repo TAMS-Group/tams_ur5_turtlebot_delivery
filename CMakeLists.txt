@@ -43,6 +43,3 @@ install(TARGETS PlaceObjectActionServer DESTINATION ${CATKIN_PACKAGE_BIN_DESTINA
 install(TARGETS PlaceObjectActionClient DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
-add_executable(PickAndPlaceTest src/PickAndPlaceTest.cpp)
-target_link_libraries(PickAndPlaceTest ${catkin_LIBRARIES})

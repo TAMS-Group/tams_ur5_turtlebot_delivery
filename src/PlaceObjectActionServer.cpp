@@ -173,28 +173,6 @@ public:
         ROS_INFO("y %f", posy);
         ROS_INFO("y %f", posz);
 
-
-        geometry_msgs::Pose pose_before_grip;
-        pose_before_grip.orientation.x = 0.5;
-        pose_before_grip.orientation.y = 0.5;
-        pose_before_grip.orientation.z = -0.5;
-        pose_before_grip.orientation.w = 0.5;
-        pose_before_grip.position.x = posx;
-        pose_before_grip.position.y = posy;
-        pose_before_grip.position.z = posz + beforeoffset;
-
-
-
-        geometry_msgs::Pose pose_grab;
-        pose_grab.orientation.x = 0.5;
-        pose_grab.orientation.y = 0.5;
-        pose_grab.orientation.z = -0.5;
-        pose_grab.orientation.w = 0.5;
-        pose_grab.position.x = posx;
-        pose_grab.position.y = posy;
-        pose_grab.position.z = posz;
-
-
         geometry_msgs::Pose pose_bottle;
         pose_bottle.orientation.w = 1;
         pose_bottle.position.x = posx;
@@ -223,13 +201,12 @@ public:
         can.header.frame_id = group_arm.getPlanningFrame();
         can.id = "can";
 
-        primitive.type = primitive.BOX;
-        primitive.dimensions.resize(3);
-        primitive.dimensions[0] = 0.08;
-        primitive.dimensions[1] = 0.08;
-        primitive.dimensions[2] = objekthoehe;
+        shape_msgs::SolidPrimitive primitive_can;
+        primitive_can.type = primitive.CYLINDER;
+        primitive_can.dimensions.push_back(objekthoehe); //height
+        primitive_can.dimensions.push_back(0.04); //radius
 
-        can.primitives.push_back(primitive);
+        can.primitives.push_back(primitive_can);
         can.primitive_poses.push_back(pose_bottle);
         can.operation = can.ADD;
 
@@ -240,73 +217,11 @@ public:
         planning_scene_diff_client.call(srv);
         ROS_INFO("OK");
 
-
-        ROS_INFO("greifposition vorbereiten");
-        group_arm.setPoseTarget(pose_before_grip);
-        success = group_arm.move();
-        if(!success) {
-            ROS_INFO("FAILED SHUTTING DOWN");
+        ROS_INFO("pick object");
+        if(!group_arm.pick("can")){
+            ROS_ERROR("pick failed");
             removeObject(turtle);
-            removeObject(can);
-            failed();
-            return;
-        }
-        ROS_INFO("OK");
-
-
-
-        ROS_INFO("bewege zu greifposition");
-        group_arm.setPoseTarget(pose_grab);
-        success = group_arm.move();
-        if(!success) {
-            ROS_INFO("FAILED SHUTTING DOWN");
-            removeObject(turtle);
-            removeObject(can);
-            failed();
-            return;
-        }
-        ROS_INFO("OK");
-
-
-        ROS_INFO("Flasche anhaengen");
-        std::vector<std::string> touch_links;
-        touch_links.push_back("s_model_finger_1_link_0");
-        touch_links.push_back("s_model_finger_1_link_1");
-        touch_links.push_back("s_model_finger_1_link_2");
-        touch_links.push_back("s_model_finger_1_link_3");
-        touch_links.push_back("s_model_finger_2_link_0");
-        touch_links.push_back("s_model_finger_2_link_1");
-        touch_links.push_back("s_model_finger_2_link_2");
-        touch_links.push_back("s_model_finger_2_link_3");
-        touch_links.push_back("s_model_finger_middle_link_0");
-        touch_links.push_back("s_model_finger_middle_link_1");
-        touch_links.push_back("s_model_finger_middle_link_2");
-        touch_links.push_back("s_model_finger_middle_link_3");
-
-        moveit_msgs::AttachedCollisionObject attached_can;
-        attached_can.link_name = "s_model_palm";
-        attached_can.object.header.frame_id = group_arm.getPlanningFrame();
-        attached_can.object.id = "can";
-        attached_can.object.primitives.push_back(primitive);
-        attached_can.object.primitive_poses.push_back(pose_bottle);
-        attached_can.object.operation = attached_can.object.ADD;
-        attached_can.touch_links = touch_links;
-        planning_scene.robot_state.attached_collision_objects.push_back(attached_can);
-        planning_scene.world.collision_objects.clear();
-
-        removeObject(can);
-
-        srv.request.scene = planning_scene;
-        planning_scene_diff_client.call(srv);
-        ROS_INFO("OK");
-        
-        ROS_INFO("Schließe hand");
-        group_gripper.setNamedTarget("closed");
-        success = group_gripper.move();
-        if(!success) {
-            ROS_INFO("FAILED SHUTTING DOWN");
-            removeObject(turtle);
-            removeObject(attached_can);
+            removeAttachedObject("can");
             failed();
             return;
         }
@@ -317,7 +232,7 @@ public:
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
             removeObject(turtle);
-            removeObject(attached_can);
+            removeAttachedObject("can");
             failed();
             return;
         }
@@ -329,7 +244,7 @@ public:
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");
             removeObject(turtle);
-            removeObject(attached_can);
+            removeAttachedObject("can");
             failed();
             return;
         }
@@ -350,21 +265,7 @@ public:
         }
 
         ROS_INFO("Flasche abhaengen");
-       
-        std::vector<std::string> ids;
-        ids.push_back(attached_can.object.id);
-
-        std::map<std::string, moveit_msgs::AttachedCollisionObject> attached_objects = planning_scene_interface.getAttachedObjects(ids);
-        can = attached_objects[attached_can.object.id].object;
-
-        can.operation = can.ADD;
-        planning_scene.robot_state.attached_collision_objects.clear();
-        planning_scene.world.collision_objects.clear();
-        planning_scene.world.collision_objects.push_back(can);
-        srv.request.scene = planning_scene;
-        planning_scene_diff_client.call(srv);
-
-        removeObject(attached_can);
+        removeAttachedObject("can");
 
         ROS_INFO("OK");
 
@@ -417,8 +318,11 @@ public:
         planning_scene_diff_client.call(srv);
     }
 
-    void removeObject(moveit_msgs::AttachedCollisionObject attached_collision_object){
+    void removeAttachedObject(std::string object_name){
         moveit_msgs::PlanningScene planning_scene;
+        moveit_msgs::AttachedCollisionObject attached_collision_object;
+
+        attached_collision_object.object.id = object_name;
         attached_collision_object.object.operation = attached_collision_object.object.REMOVE;
         planning_scene.robot_state.attached_collision_objects.push_back(attached_collision_object);
         planning_scene.is_diff = true;

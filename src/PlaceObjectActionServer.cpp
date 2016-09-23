@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#define START_POSE  "folded"
+
 class PlaceObjectAction
 {
 protected:
@@ -124,10 +126,10 @@ public:
 
         get_planning_scene_client.call(request, response);
 
-        if(!similarJointStates(response.scene.robot_state.joint_state, group_arm.getNamedTargetValues("start_grab_pose"))){
+        if(!similarJointStates(response.scene.robot_state.joint_state, group_arm.getNamedTargetValues(START_POSE))){
             ROS_INFO("bewege zu startzustand");
 
-            group_arm.setNamedTarget("start_grab_pose");
+            group_arm.setNamedTarget(START_POSE);
         
             success = group_arm.move();
             if(!success) {
@@ -385,7 +387,7 @@ public:
         actionserver_.setSucceeded(result_);
 
         ROS_INFO("bewege zu endzustand");
-        group_arm.setNamedTarget("start_grab_pose");
+        group_arm.setNamedTarget(START_POSE);
         success = group_arm.move();
         if(!success) {
             ROS_INFO("FAILED SHUTTING DOWN");

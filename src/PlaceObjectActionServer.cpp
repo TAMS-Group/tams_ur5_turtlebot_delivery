@@ -212,7 +212,7 @@ public:
         ROS_INFO("OK");
 
         ROS_INFO("pick object");
-        if(!group_arm.pick("can")){
+        if(!group_arm.planGraspsAndPick("can")){
             ROS_ERROR("pick failed");
             removeObject(turtle);
             removeAttachedObject("can");

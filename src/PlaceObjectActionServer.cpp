@@ -181,19 +181,13 @@ public:
 
         geometry_msgs::PoseStamped pose_place;
         pose_place.header.frame_id = "turtlebot_holder";
-        pose_place.pose.orientation.x = 0.5;
-        pose_place.pose.orientation.y = 0.5;
-        pose_place.pose.orientation.z = -0.5;
-        pose_place.pose.orientation.w = 0.5;
+        pose_place.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI/2, M_PI/2, 0.0);
         pose_place.pose.position.z += objekthoehe + abwurfabstand;
 
 
         geometry_msgs::PoseStamped pose_in_between;
         pose_in_between.header.frame_id = "turtlebot_holder";
-        pose_in_between.pose.orientation.x = 0.5;
-        pose_in_between.pose.orientation.y = 0.5;
-        pose_in_between.pose.orientation.z = -0.5;
-        pose_in_between.pose.orientation.w = 0.5;
+        pose_in_between.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(M_PI/2, M_PI/2, 0.0);
         pose_in_between.pose.position.z += beforeoffset + objekthoehe;
 
 

@@ -1,7 +1,7 @@
 project15_objectrecognition
 ======
 
-This repository provides a position detection of an object on the table in the tams laboratory setup.
+This repository provides a position detection of an object on the table in the tams laboratory setup.  
 The detected object will be published as a frame.
 
 ---

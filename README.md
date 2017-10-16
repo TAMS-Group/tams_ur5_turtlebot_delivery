@@ -1,4 +1,4 @@
-tams_ur5_turtlebot_delivery
+Turtlebot Delivery Project 2015/2016
 ======
 
 This project is the result of the TAMS master project 2015.
@@ -16,6 +16,14 @@ The functionality is divided into 4 packages:
 
 __Usage__
 
+When running on hardware it is recommended to use the turtlebot 'Donny', since
+it has a funnel attached to the top which fits perfectly with a cylinder as for
+instance a pringle's box.
+There are two ways to run the demo, either with or without turtlebot delivery, as is
+described below.
+
+## Running the full demo
+
 The full demo can by run by:
 
 ```roslaunch tams_ur5_turtlebot_delivery delivery.launch```
@@ -26,7 +34,7 @@ Additionally the corresponding turtlebot needs to be started and initialized wit
 
 ```roslaunch tams_ur5_turtlebot_delivery_turtlebot turtlebot_delivery.launch```
 
-
+## Running the demo without the turtlebot
 
 Alternatively it is possible to run the demo without the turtlebot functionality.
 To do that 'donny' needs to be placed at the docking station next to the table beforehand.

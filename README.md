@@ -14,9 +14,9 @@ The functionality is divided into 4 packages:
 
 ---
 
-__Usage__
+## Usage
 
-When running on hardware it is recommended to use the turtlebot 'Donny', since
+When running the demo on hardware it is recommended to use the turtlebot 'Donny', since
 it has a funnel attached to the top which fits perfectly with a cylinder as for
 instance a pringle's box.
 There are two ways to run the demo, either with or without turtlebot delivery, as is

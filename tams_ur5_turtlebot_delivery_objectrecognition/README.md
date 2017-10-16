@@ -1,4 +1,4 @@
-project15_objectrecognition
+tams_ur5_turtlebot_delivery_objectrecognition
 ======
 
 This repository provides a position detection of an object on the table in the tams laboratory setup.  
@@ -10,4 +10,4 @@ __Usage__
 
 To launch the objectrecognition use:
 
-```roslaunch project15_objectrecognition object_detector.launch```
+```roslaunch tams_ur5_turtlebot_delivery_objectrecognition object_detector.launch```

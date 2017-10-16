@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>project15_objectrecognition</name>
+  <name>tams_ur5_turtlebot_delivery_objectrecognition</name>
   <version>0.0.0</version>
   <description>Object recognition for the tams_ur5_setup demo</description>
 

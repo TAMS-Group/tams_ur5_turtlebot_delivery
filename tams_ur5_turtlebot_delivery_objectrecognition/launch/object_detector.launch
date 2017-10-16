@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="project15_objectrecognition" type="object_recognition" name="object_detector" output="screen"/>
+</launch>

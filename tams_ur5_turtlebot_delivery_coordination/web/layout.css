@@ -1,0 +1,27 @@
+.button-container {
+    width: 1100px;
+    background: gray;
+    overflow-y: auto;
+}
+
+.button-container > a {
+    width: 100px;
+    height: 200px;
+    float: left;
+    background: lightgray;   
+    margin: 30px;
+}
+
+.data-container {
+    width: 1100px;
+    background: lightgray;
+    overflow-y: auto;
+}
+
+.data-container > a {
+    width: 100px;
+    height: 200px;
+    float: left;
+    background: white;   
+    margin: 30px;
+}

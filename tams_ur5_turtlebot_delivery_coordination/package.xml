@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>project15_coordination</name>
+  <version>0.0.0</version>
+  <description>The project15_coordination package</description>
+
+  <maintainer email="1papmeie@todo.todo">1papmeie</maintainer>
+  <license>TODO</license>
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

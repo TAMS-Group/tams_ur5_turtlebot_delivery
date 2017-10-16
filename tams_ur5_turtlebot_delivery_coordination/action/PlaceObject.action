@@ -1,0 +1,8 @@
+#goal
+string obj
+---
+#result
+int16 status
+---
+#feedback
+int16 status

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="multimaster" default="true" doc="start multimaster"/>
+	<include file="$(find project15_turtlebot)/launch/multimaster.launch" if="$(arg multimaster)"/>
+
+	<group ns="$(env TURTLEBOT_NAME)" >
+		<!--<remap from="/initialpose" to="/$(env TURTLEBOT_NAME)/initialpose" /> -->
+		<include file="$(find tams_turtlebot_bringup)/launch/tams_turtlebot_navigation.launch">
+			<!-- Position of donny in the tams laboratory at the docking station -->
+			<arg name="initial_pose_x" value="2.19627451897"/>
+			<arg name="initial_pose_y" value="6.200963974"/>
+			<arg name="initial_pose_a" value="1.9503071825392408"/>
+		</include>
+		<node name="mapPositionProvider" pkg="project15_turtlebot" type="mapPosition.py" />
+	</group>
+
+        <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
+	<node name="turtleAnnounce_$(env TURTLEBOT_NAME)" pkg="project15_turtlebot" type="turtleAnnounce.py" />
+</launch>

@@ -1,0 +1,171 @@
+
+import rospy
+import actionlib
+
+from geometry_msgs.msg import PoseStamped, Pose
+from geometry_msgs.msg import Twist
+from actionlib_msgs.msg import GoalStatusArray
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from kobuki_msgs.msg import AutoDockingAction, AutoDockingGoal
+
+from project15_turtlebot.msg import dockingBridgeReply, dockingBridge
+import time
+
+TURTLE_STATE_IDLE = 0
+TURTLE_STATE_HAVE_TASK = 1
+TURTLE_STATE_LOADING = 3
+TURTLE_STATE_BUSY = 4
+
+TURTLE_INTERNAL_STATE_CHARGING = 0  # steht auf der ladestation
+TURTLE_INTERNAL_STATE_DOCKING = 1  # docking in progress
+TURTLE_INTERNAL_STATE_UNDOCKING = 2  # undocking in progress
+TURTLE_INTERNAL_STATE_GOTO = 3  # faehrt zu einer position
+TURTLE_INTERNAL_STATE_IDLE = 4  # steht im raum rum
+
+GOAL_STATE_NONE = 0
+GOAL_STATE_NAVIGATING = 1
+GOAL_STATE_REACHED = 2
+GOAL_STATE_NAVIGATING_START = 3
+
+class Turtle(object):
+    def __init__(self, name, x, y):
+        self.name = name
+        self.namespace = name + "/"
+        self.state = TURTLE_STATE_IDLE
+        self.internal_state = TURTLE_INTERNAL_STATE_IDLE
+        self.position = (0, 0)
+        self.wait = 0
+        self.goal_status = GOAL_STATE_NONE
+        self.home_x = x
+        self.home_y = y
+        self.dockstatus = 0
+        self.goal = (-99999, -99999)
+        self.oldstate = -1
+        self.goal_reset_timeout = 0
+        self.printcounter = 0
+
+        self.moveBaseClient = actionlib.SimpleActionClient(self.namespace + 'move_base', MoveBaseAction)
+        self.dockingClient = actionlib.SimpleActionClient(self.namespace + 'dock_drive_action', AutoDockingAction)
+        self.velocity_publisher = rospy.Publisher(self.namespace + 'cmd_vel_mux/input/teleop', Twist, queue_size=10)
+        rospy.Subscriber(self.namespace + "map_position", PoseStamped, self.set_position)
+        if not self.moveBaseClient.wait_for_server(rospy.Duration(10.0)):
+            rospy.logwarn("still waiting for "+self.namespace+"move_base")
+            self.moveBaseClient.wait_for_server()
+        if not self.dockingClient.wait_for_server(rospy.Duration(10.0)):
+            rospy.logwarn("still waiting for "+self.namespace+"dock_drive_action")
+            self.dockingClient.wait_for_server()
+        # TODO: check battery state
+
+    def set_position(self, position_msg):
+        """
+        update current turle position
+        callback for listener on /map_position
+
+        :param position: geometry_msgs/Pose
+        :return:
+        """
+        self.position = (round(position_msg.pose.position.x, 1), round(position_msg.pose.position.y, 1))
+
+    def go_to_loading(self):
+        """
+        move turtle near package loading station
+        :return: True if arrived
+        """
+        print "Turtle, go to loading, pos: ", self.position
+        return self.goto_goal(0, 0)
+
+    def go_to_waiting(self):
+        """
+        move turtle to waiting position
+        :return:
+        """
+        # TODO: if we receive a new task here, bad stuff happens
+        print "waiting"
+        if not self.internal_state == TURTLE_INTERNAL_STATE_CHARGING:
+            print "goto loading"
+            if self.goto_goal(self.home_x, self.home_y):  # TODO: ladestationspositition dynamisch
+                self.dock()
+
+    def dock(self):
+        """
+        dock to nearby power loading station
+        :return: True if succeeded
+        """
+
+        dockingState = self.dockingClient.get_state()
+        if dockingState == actionlib.GoalStatus.SUCCEEDED:
+            self.internal_state = TURTLE_INTERNAL_STATE_CHARGING
+            if self.oldstate != -1:
+                self.state = self.oldstate      
+            return True
+        if not dockingState in (actionlib.GoalStatus.PENDING,actionlib.GoalStatus.ACTIVE):
+            self.internal_state = TURTLE_INTERNAL_STATE_DOCKING
+            self.oldstate = self.state
+            self.state = TURTLE_STATE_BUSY
+            self.do_dock()
+            print "turtle docking"
+        return False
+
+    def goto_goal(self, x, y):
+        """
+        Drive to a position
+
+        :param x:
+        :param y:
+        :return: true if reached
+        """
+        if self.goal_status == GOAL_STATE_NAVIGATING and self.moveBaseClient.get_state() == actionlib.GoalStatus.SUCCEEDED:
+            self.goal_status = GOAL_STATE_NONE
+            print "goto_goal success"
+            return True
+        if self.goal_status == GOAL_STATE_NONE or (x, y) != self.goal or self.goal_reset_timeout < 0:
+            print "set goal"
+            #time.sleep(2)
+            self._set_goal(x, y)
+            self.goal_reset_timeout = 30
+        else:
+            print "Goal already set"
+            self.goal_reset_timeout -= 1
+        return False
+
+    def _set_goal(self, x, y):
+        """
+        specify new goal for move_base of turtle
+        :param x:
+        :param y:
+        :return:
+        """
+        self.goal = (x, y)
+        if self.internal_state in (TURTLE_INTERNAL_STATE_CHARGING,):
+            self.wait = 10
+            self.internal_state = TURTLE_INTERNAL_STATE_UNDOCKING
+        if self.internal_state == TURTLE_INTERNAL_STATE_UNDOCKING:
+            vel = Twist()
+            if self.wait > 0:
+                vel.linear.x = -0.2
+            else:
+                vel.linear.x = 0
+                self.internal_state = TURTLE_INTERNAL_STATE_GOTO
+            self.wait -= 1
+            self.velocity_publisher.publish(vel)
+        else:
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = 'map'
+            goal.target_pose.pose.position.x = x
+            goal.target_pose.pose.position.y = y
+            goal.target_pose.pose.position.z = 0
+            goal.target_pose.pose.orientation.z = 1
+            self.goal_status = GOAL_STATE_NAVIGATING
+            self.internal_state = TURTLE_INTERNAL_STATE_GOTO
+            self.moveBaseClient.send_goal(goal)
+
+    def do_dock(self):
+        print "Docking!"
+        goal = AutoDockingGoal()
+        self.dockingClient.send_goal(goal)
+        if self.oldstate != -1:
+            self.state = self.oldstate
+        print 'Dock: Sent.'
+
+    def __repr__(self):
+        return "<Turtle %s>" % self.name

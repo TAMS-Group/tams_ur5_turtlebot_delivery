@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+
+    <script type="text/javascript" src="http://cdn.robotwebtools.org/EaselJS/current/easeljs.min.js"></script>
+    <script type="text/javascript"
+            src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+    <script type="text/javascript" src="http://cdn.robotwebtools.org/ros2djs/current/ros2d.min.js"></script>
+
+    <script type="text/javascript" type="text/javascript">
+        /**
+         * Setup all visualization elements when the page is loaded.
+         */
+        var viewer = 0
+        var ros
+        var dim_x
+        var dim_y
+        var faktor = 1
+        var origin
+        var dim_x = 100
+        var dim_y = 80
+        var canvas
+        var context
+        var ziel_x = -100
+        var ziel_y = -100
+        var goal_topic
+        var turtles = []
+        var mapTurtle = 0  // the durtle we get the map from
+        var turtlePositions = []
+        var tasks = []
+
+        function firstTurtle(name) {
+            map_metadata_listener = new ROSLIB.Topic({
+                ros: ros,
+                name: '/' + name + '/map_metadata',
+                messageType: 'nav_msgs/MapMetaData'
+            });
+            console.log("huohoiuhno")
+            map_metadata_listener.subscribe(function (message) {
+                dim_x = message.width
+                dim_y = message.height
+                //console.log("gvöiovizhl")
+                if (viewer == 0) {
+                    // Create the main viewer.
+                    viewer = new ROS2D.Viewer({
+                        divID: 'map',
+                        width: dim_x,
+                        height: dim_y
+                    });
+
+                    // Setup the map client.
+                    var gridClient = new ROS2D.OccupancyGridClient({
+                        ros: ros,
+                        topic: '/' + name + '/map',
+                        rootObject: viewer.scene
+                    });
+                    // Scale the canvas to fit to the map
+                    gridClient.on('change', function () {
+                        viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+
+
+                        //        viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+                    });
+                    canvas = document.getElementById("draw")
+                    canvas.addEventListener("mousedown", doMouseDown, false);
+                    canvas.setAttribute("width", dim_x)
+                    canvas.setAttribute("height", dim_y)
+
+                    origin = message.origin.position
+                    // schift the origin back
+                    viewer.shift(origin.x, origin.y);
+                    console.log("Map Dims: ", dim_x, dim_y, faktor, origin);
+                }
+                faktor = message.resolution
+                context = canvas.getContext("2d")
+
+            });
+        }
+
+        function newTurtle(name) {
+            if (mapTurtle == 0) {
+                firstTurtle(name)
+            }
+            robot_position_listener = new ROSLIB.Topic({
+                ros: ros,
+                name: '/'+name+'/map_position',
+                messageType: 'geometry_msgs/PoseStamped'
+            });
+
+            robot_position_listener.subscribe(function (message) {
+                // TODO: das name geht hier vermutlich nicht, oder doch?!
+                turtlePositions[turtles.indexOf(name)] = [message.pose.position.x, message.pose.position.y, '#0000ff', name]
+                //console.log(turtlePositions)
+                clear_canvas()
+            })
+        }
+
+        function init() {
+            // Connect to ROS.
+            ros = new ROSLIB.Ros({
+                url: 'ws://tams43:9090'
+            });
+            console.log("uohiop")
+
+
+            goal_topic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/itemRequest',
+                messageType: 'project15_turtlebot/itemRequest'
+            });
+
+            turtlesListener = new ROSLIB.Topic({
+                ros: ros,
+                name: '/turtles',
+                messageType: 'project15_turtlebot/OnlineTurtle'
+            });
+
+            turtlesListener.subscribe(function (message) {
+                name = message.name
+                console.log('Turtle: ' + name)
+                if (turtles.indexOf(name) == -1)
+                {
+                    console.log("New Turtle: " + name)
+                    turtles.push(name)
+                    newTurtle(name)
+                }
+            })
+
+            taskStatusListener = new ROSLIB.Topic({
+                ros: ros,
+                name: '/taskStatus',
+                messageType: 'project15_coordination/taskStatus'
+            });
+
+            taskStatusListener.subscribe(function (message) {
+                var text = ""
+                tasks = []
+                message.tasks.forEach(function(task, pos, all) {
+                    console.log("Task: "+ task.id + " " + task.num, task.pose)
+                    tasks[task.num] = [task.num, task.pose.position.x, task.pose.position.y, task.status]
+                    text += ""+ task.num + " " + task.status + " " + task.item + "</br>"
+                })
+                document.getElementById("tasks").innerHTML = text
+            })
+        }
+
+        function doMouseDown(event) {
+            var event_x = event.pageX - parent.canvas.offsetLeft
+            var event_y = event.pageY - parent.canvas.offsetTop
+
+            map_event_x = event_x * faktor + origin.x
+            map_event_y = (dim_y - event_y) * faktor + origin.y
+            console.log("Mouse Event: ", event_x, event_y, map_event_x, map_event_y)
+
+            //draw_map_dot(map_event_x, map_event_y, '#ff0000')
+            ziel_x = map_event_x
+            ziel_y = map_event_y
+
+        }
+
+        function draw_dot(x, y, color) {
+            //console.log("draw!", x, y)
+            //console.log(context)
+            if (y == -100 && x == -100) {
+                return
+            }
+            context.beginPath();
+            context.arc(x, y, 2, 0, 2 * Math.PI, false);
+            context.lineWidth = 5;
+            context.strokeStyle = color;
+            context.stroke();
+        }
+
+        function draw_map_dot(x, y, color, name) {
+            draw_dot((x - origin.x) / faktor, dim_y - ((y - origin.y) / faktor), color)
+        }
+
+        function print_text(x, y, color, text) {
+            context.font = "10px Arial";
+            context.strokeStyle = color;
+            context.fillText(text,(x - origin.x) / faktor,dim_y - ((y - origin.y) / faktor));
+        }
+
+        function clear_canvas() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            draw_map_dot(ziel_x, ziel_y, "#ff0000");
+            turtlePositions.forEach(function(turtle, a, arr) {
+                draw_map_dot(turtle[0],turtle[1],turtle[2]);
+                print_text(turtle[0], turtle[1], turtle[2], turtle[3]);
+            })
+            tasks.forEach(function(t, a, arr) {
+                color = "#000000"
+                switch (t[3]) {
+                    case 0:
+                        //initial
+                        break;
+                    case 1:
+                        //fetch turtle
+                    case 2:
+                        //get item
+                    case 4:
+                        //deliver
+                    case 5:
+                        //position turtle
+                        color = "#00aa00"
+                        break;
+                    case 3:
+                        // goal
+                        color = "#00ff00"
+                        break;
+                }
+                //console.log(t)
+                draw_map_dot(t[1],t[2],color)
+                print_text(t[1],t[2],color,'Task: '+t[0])
+            })
+        }
+TASK_STATE_INITIAL = 0
+TASK_STATE_FETCH_TURTLE = 1
+TASK_STATE_GET_ITEM = 2
+TASK_STATE_GOAL = 3
+TASK_STATE_DELIVER = 4
+TASK_STATE_POSITION_TURTLE = 5
+        function call_robot() {
+            if (ziel_x == -100 && ziel_y == -100) {
+                alert("Please chose a position in the map to bring your Items to")
+            }
+            // welches ist gewählt?
+            var radios = document.getElementsByName('choice');
+            var choice = ""
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    choice = radios[i].value
+
+                }
+            }
+            var task_id = generateUUID()
+            console.log("Choice: ", choice, ziel_x, ziel_y, task_id)
+            var goal = new ROSLIB.Message({
+                header: {
+                    frame_id: "map"
+                },
+                pose: {
+                    position: {
+                        x: ziel_x,
+                        y: ziel_y,
+                        z: 0.0
+                    },
+                    orientation: {
+                        z: 1
+                    }
+                },
+                item: choice,
+                uuid: task_id
+            });
+            goal_topic.publish(goal);
+        }
+
+
+        function generateUUID(){
+            var d = new Date().getTime();
+            if(window.performance && typeof window.performance.now === "function"){
+                d += performance.now(); //use high-precision timer if available
+            }
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = (d + Math.random()*16)%16 | 0;
+                d = Math.floor(d/16);
+                return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+            });
+            return uuid;
+        }
+    </script>
+</head>
+
+<body onload="init()">
+<h1>TAMS Service Robots!</h1>
+<div id="choice">
+    <form action="javascript:call_robot()">
+        <input type="radio" id="item1" value="item1" name="choice">Item1
+        <input type="radio" id="item2" value="item2" name="choice">Item1
+        <input type="submit" id="submit" value="submit">
+    </form>
+    <div>
+<div id="map">
+    <canvas id="draw" style="position: absolute"></canvas>
+
+
+</div>
+<p id="tasks">No Tasks</p>
+</body>
+</html>

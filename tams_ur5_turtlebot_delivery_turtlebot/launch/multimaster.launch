@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+	<node name="multimaster" pkg="master_discovery_fkie" type="master_discovery" />
+	<node name="$(anon master_sync)" pkg="master_sync_fkie" type="master_sync">
+<rosparam param="sync_services">['']</rosparam>
+<rosparam param="sync_topics" subst_value="true">
+- /turtles
+- /$(env TURTLEBOT_NAME)/map_position
+- /$(env TURTLEBOT_NAME)/map_metadata
+- /$(env TURTLEBOT_NAME)/map*
+- /$(env TURTLEBOT_NAME)/move_base/goal
+- /$(env TURTLEBOT_NAME)/move_base/cancel
+- /$(env TURTLEBOT_NAME)/move_base/feedback
+- /$(env TURTLEBOT_NAME)/move_base/result
+- /$(env TURTLEBOT_NAME)/move_base/status
+- /$(env TURTLEBOT_NAME)/move_base_simple/goal
+- /$(env TURTLEBOT_NAME)/dock_drive_action/*
+- /$(env TURTLEBOT_NAME)/cmd_vel_mux/input/teleop
+- /$(env TURTLEBOT_NAME)/initialpose
+- /robotsound
+</rosparam>
+	</node>
+</launch>

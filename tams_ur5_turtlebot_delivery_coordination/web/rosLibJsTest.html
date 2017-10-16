@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel=stylesheet type="text/css" href="layout.css">
+		<script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+		<script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+		<script type="text/javascript" src="rosbridge.js"></script>
+	</head>
+
+	<body>
+		<h1>Robotiq 3-Finger-Adaptive-Gripper ROSbridge Interface</h1>
+		<br>
+		<div class="button-container">
+			<!--button type="button" onclick="testConnect()">Test</button-->
+			<button type="button" onclick="connect()">Connect to Robot</button>
+			<button type="button" onclick="initHand()">Initialize Hand</button>
+			<button type="button" onclick="openHand()">Open Hand</button>
+			<button type="button" onclick="closeHand()">Close Hand</button>
+			<button type="button" onclick="getHandState()">Read Hand State</button>
+			<button type="button" onclick="unsubscribeHandState()">Unsubscribe Hand State</button>
+			<button type="button" onclick="getCompressedImage()">Get Compressed Image</button>
+			<button type="button" onclick="unsubscribeCompressedImage()">Unsubscribe Compressed Image</button>
+		</div>
+
+		<canvas id='thecanvas' width="640" height="480"></canvas>
+
+		<div class="data-container">		
+			gACT <input type="number" id="gACT"> 
+			gMOD <input type="number" id="gMOD">
+			gGTO <input type="number" id="gGTO">
+			gIMC <input type="number" id="gIMC">
+			gSTA <input type="number" id="gSTA">
+			gDTA <input type="number" id="gDTA">
+			<br> 
+			gDTB <input type="number" id="gDTB">
+			gDTC <input type="number" id="gDTC">
+			gDTS <input type="number" id="gDTS">
+			gFLT <input type="number" id="gFLT">
+			gPRA <input type="number" id="gPRA">
+			gPOA <input type="number" id="gPOA">
+			<br> 
+			gCUA <input type="number" id="gCUA"> 
+			gPRB <input type="number" id="gPRB"> 
+			gPOB <input type="number" id="gPOB"> 
+			gCUB <input type="number" id="gCUB"> 
+			gPRC <input type="number" id="gPRC"> 
+			<br>
+			gPOC <input type="number" id="gPOC"> 
+			gCUC <input type="number" id="gCUC"> 
+			gPRS <input type="number" id="gPRS"> 
+			gPOS <input type="number" id="gPOS"> 
+			gCUS <input type="number" id="gCUS"> 
+			<br>				
+		</div>
+	</body>
+</html>

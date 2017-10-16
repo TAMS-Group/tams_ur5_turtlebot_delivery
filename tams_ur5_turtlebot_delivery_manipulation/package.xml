@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>project15_manipulation</name>
+  <name>tams_ur5_turtlebot_delivery_manipulation</name>
   <version>0.0.0</version>
-  <description>The project15_manipulation package</description>
+  <description>The tams_ur5_turtlebot_delivery_manipulation package</description>
 
   <!-- old one: <maintainer email="5bunge@todo.todo">5bunge</maintainer> -->
   <maintainer email="5jonetzk@informatik.uni-hamburg.de">Yannick Jonetzko</maintainer>

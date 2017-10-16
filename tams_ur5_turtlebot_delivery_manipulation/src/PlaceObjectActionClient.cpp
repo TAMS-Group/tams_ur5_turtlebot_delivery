@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
-#include <project15_coordination/PlaceObjectAction.h>
+#include <tams_ur5_turtlebot_delivery_coordination/PlaceObjectAction.h>
 
 int main (int argc, char **argv)
 {
@@ -9,7 +9,7 @@ int main (int argc, char **argv)
 
   // create the action client
   // true causes the client to spin its own thread
-  actionlib::SimpleActionClient<project15_coordination::PlaceObjectAction> ac("PlaceObject", true);
+  actionlib::SimpleActionClient<tams_ur5_turtlebot_delivery_coordination::PlaceObjectAction> ac("PlaceObject", true);
 
   ROS_INFO("Waiting for action server to start.");
   // wait for the action server to start
@@ -17,7 +17,7 @@ int main (int argc, char **argv)
 
   ROS_INFO("Action server started, sending goal.");
   // send a goal to the action
-  project15_coordination::PlaceObjectGoal goal;
+  tams_ur5_turtlebot_delivery_coordination::PlaceObjectGoal goal;
   goal.obj = "Gegenstand";
   ac.sendGoal(goal);
 

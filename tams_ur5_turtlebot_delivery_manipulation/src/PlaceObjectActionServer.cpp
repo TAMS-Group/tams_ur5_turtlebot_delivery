@@ -21,7 +21,7 @@
 #include <tf/transform_listener.h>
 
 #include <actionlib/server/simple_action_server.h>
-#include <project15_coordination/PlaceObjectAction.h>
+#include <tams_ur5_turtlebot_delivery_coordination/PlaceObjectAction.h>
 
 #include <iostream>
 #include <stdio.h>
@@ -34,11 +34,11 @@ class PlaceObjectAction
 protected:
 
     ros::NodeHandle node_handle_;
-    actionlib::SimpleActionServer<project15_coordination::PlaceObjectAction> actionserver_;
+    actionlib::SimpleActionServer<tams_ur5_turtlebot_delivery_coordination::PlaceObjectAction> actionserver_;
     std::string action_name_;
 
-    project15_coordination::PlaceObjectFeedback feedback_;
-    project15_coordination::PlaceObjectResult result_;
+    tams_ur5_turtlebot_delivery_coordination::PlaceObjectFeedback feedback_;
+    tams_ur5_turtlebot_delivery_coordination::PlaceObjectResult result_;
 
     bool success;
 
@@ -64,7 +64,7 @@ public:
 
     }
 
-    void executeCB(const project15_coordination::PlaceObjectGoalConstPtr &goal)
+    void executeCB(const tams_ur5_turtlebot_delivery_coordination::PlaceObjectGoalConstPtr &goal)
     {
         ros::Rate r(1);
 

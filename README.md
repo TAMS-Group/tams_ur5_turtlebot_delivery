@@ -22,7 +22,7 @@ instance a pringle's box.
 There are two ways to run the demo, either with or without turtlebot delivery, as is
 described below.
 
-## Running the full demo
+### Running the full demo
 
 The full demo can by run by:
 
@@ -34,14 +34,15 @@ Additionally the corresponding turtlebot needs to be started and initialized wit
 
 ```roslaunch tams_ur5_turtlebot_delivery_turtlebot turtlebot_delivery.launch```
 
-## Running the demo without the turtlebot
+### Running the demo without the turtlebot
 
 Alternatively it is possible to run the demo without the turtlebot functionality.
 To do that 'donny' needs to be placed at the docking station next to the table beforehand.
-By calling
 
+By calling 
 ```roslaunch tams_ur5_turtlebot_delivery ur5_pick_setup.launch```
 only those components are launched that are necessary for objectrecognition and manipulation.
 
 To execute the pick and place attempt one simply needs to start the PlaceObjectActionClient:
+
 ```rosrun tams_ur5_turtlebot_delivery_manipulation PlaceObjectActionClient```

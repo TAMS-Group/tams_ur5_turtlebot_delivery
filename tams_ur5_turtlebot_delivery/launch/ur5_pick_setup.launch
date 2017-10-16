@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-	<!-- tams_ur5 control & place object server -->
+	<!-- tams_ur5_setup with kinect2 and gripper mode set to 'wide_pinch' -->
 	<include file="$(find tams_ur5_setup_bringup)/launch/tams_ur5_setup_floor_kinect2.launch" />
+	<param name="robotiq_s_model_action_server/gripper_mode" value="wide_pinch"/>
+
+	<!-- Pick/Place action server including the grasp action service -->
 	<include file="$(find tams_ur5_turtlebot_delivery_manipulation)/launch/place_object_server.launch" />
 
 	<!-- object detection module -->

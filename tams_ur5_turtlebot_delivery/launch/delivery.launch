@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+	<!-- ur5 setup, objectrecognition and pick capability -->
+	<include file="$(find tams_ur5_turtlebot_delivery)/launch/ur5_pick_setup.launch" />
+
+	<!-- high level coordination, including multimaster and web socket -->
+	<include file="$(find tams_ur5_turtlebot_coordination)/launch/coordination.launch" />
+</launch>

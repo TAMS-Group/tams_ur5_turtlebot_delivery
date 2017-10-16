@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+	<!-- tams_ur5 control & place object server -->
+	<include file="$(find tams_ur5_setup_bringup)/launch/tams_ur5_setup_floor_kinect2.launch" />
+	<include file="$(find tams_ur5_turtlebot_delivery_manipulation)/launch/place_object_server.launch" />
+
+	<!-- object detection module -->
+	<include file="$(find tams_ur5_turtlebot_delivery_objectrecognition)/launch/object_detector.launch" />
+</launch>

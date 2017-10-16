@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define START_POSE  "folded"
+#define START_POSE  "pour_default"
 
 class PlaceObjectAction
 {
@@ -73,6 +73,7 @@ public:
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
         moveit::planning_interface::MoveGroup group_arm("arm");
         moveit::planning_interface::MoveGroup group_gripper("gripper");
+	group_arm.setSupportSurfaceName("table");
         
         moveit_msgs::ApplyPlanningScene srv;
         moveit_msgs::PlanningScene planning_scene;

@@ -8,9 +8,9 @@ from task import Task, TASK_STATE_DELIVER, TASK_STATE_FETCH_TURTLE, TASK_STATE_G
 from turtle import Turtle
 from collections import deque
 
-from project15_turtlebot.msg import itemRequest, OnlineTurtle
-from project15_coordination.msg import PlaceObjectAction, PlaceObjectGoal, taskStatus
-from project15_coordination.msg import task as task_msg
+from tams_ur5_turtlebot_delivery_turtlebot.msg import itemRequest, OnlineTurtle
+from tams_ur5_turtlebot_delivery_coordination.msg import PlaceObjectAction, PlaceObjectGoal, taskStatus
+from tams_ur5_turtlebot_delivery_coordination.msg import task as task_msg
 
 from geometry_msgs.msg import Pose
 

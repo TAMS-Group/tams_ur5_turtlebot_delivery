@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(project15_coordination)
+project(tams_ur5_turtlebot_delivery_coordination)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp

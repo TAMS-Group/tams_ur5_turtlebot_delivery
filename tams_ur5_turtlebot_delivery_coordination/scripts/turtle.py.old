@@ -8,7 +8,7 @@ from actionlib_msgs.msg import GoalStatusArray
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from kobuki_msgs.msg import AutoDockingAction, AutoDockingGoal
 
-from project15_turtlebot.msg import dockingBridgeReply, dockingBridge
+from tams_ur5_turtlebot_delivery_turtlebot.msg import dockingBridgeReply, dockingBridge
 import time
 
 TURTLE_STATE_IDLE = 0

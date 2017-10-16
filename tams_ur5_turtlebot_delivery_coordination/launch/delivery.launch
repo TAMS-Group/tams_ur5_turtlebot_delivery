@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 	<!-- communication with turtle bot & browser+js -->
-	<include file="$(find project15_coordination)/launch/multimaster.launch" />
+	<include file="$(find tams_ur5_turtlebot_delivery_coordination)/launch/multimaster.launch" />
 	<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
 
 	<!-- tams_ur5 control & place object server -->
 	<include file="$(find tams_ur5_setup_bringup)/launch/tams_ur5_setup.launch" />
-	<include file="$(find project15_manipulation)/launch/place_object_server.launch" />
+	<include file="$(find tams_ur5_turtlebot_delivery_manipulation)/launch/place_object_server.launch" />
 
 	<!-- object detection module -->
-	<include file="$(find project15_objectrecognition)/launch/object_detector.launch" />
+	<include file="$(find tams_ur5_turtlebot_delivery_objectrecognition)/launch/object_detector.launch" />
 
 	<!-- high-level logic for delivery tasks -->
-	<node name="Coordinator" pkg="project15_coordination" type="coordinator.py" output="screen" />
+	<node name="Coordinator" pkg="tams_ur5_turtlebot_delivery_coordination" type="coordinator.py" output="screen" />
 </launch>

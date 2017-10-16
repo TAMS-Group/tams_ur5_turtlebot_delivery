@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>project15_coordination</name>
+  <name>tams_ur5_turtlebot_delivery_coordination</name>
   <version>0.0.0</version>
-  <description>The project15_coordination package</description>
+  <description>The tams_ur5_turtlebot_delivery_coordination package</description>
 
   <maintainer email="1papmeie@todo.todo">1papmeie</maintainer>
   <license>TODO</license>

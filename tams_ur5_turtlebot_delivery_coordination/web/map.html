@@ -108,13 +108,13 @@
             goal_topic = new ROSLIB.Topic({
                 ros: ros,
                 name: '/itemRequest',
-                messageType: 'project15_turtlebot/itemRequest'
+                messageType: 'tams_ur5_turtlebot_delivery_turtlebot/itemRequest'
             });
 
             turtlesListener = new ROSLIB.Topic({
                 ros: ros,
                 name: '/turtles',
-                messageType: 'project15_turtlebot/OnlineTurtle'
+                messageType: 'tams_ur5_turtlebot_delivery_turtlebot/OnlineTurtle'
             });
 
             turtlesListener.subscribe(function (message) {
@@ -131,7 +131,7 @@
             taskStatusListener = new ROSLIB.Topic({
                 ros: ros,
                 name: '/taskStatus',
-                messageType: 'project15_coordination/taskStatus'
+                messageType: 'tams_ur5_turtlebot_delivery_coordination/taskStatus'
             });
 
             taskStatusListener.subscribe(function (message) {

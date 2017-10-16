@@ -29,7 +29,10 @@ class ObjectRecognition{
 
     public:
         ObjectRecognition(){
-            sub = nh.subscribe<PointCloud>("camera/depth_registered/points", 1, &ObjectRecognition::pointCloudCb, this);
+	    //Use kinect2 - should be parameterized
+	    sub = nh.subscribe<PointCloud>("kinect2/qhd/points", 1, &ObjectRecognition::pointCloudCb, this);
+	    //sub = nh.subscribe<PointCloud>("camera/depth_registered/points", 1, &ObjectRecognition::pointCloudCb, this);
+
             cloud_pub = nh.advertise<PointCloud> ("object_cloud", 1);
             tf_listener = new tf::TransformListener;
             tf_pub = new tf::TransformBroadcaster;

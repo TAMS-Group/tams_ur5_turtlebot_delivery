@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>project15_turtlebot</name>
+  <name>tams_ur5_turtlebot_delivery_turtlebot</name>
   <version>0.0.0</version>
-  <description>The project15_turtlebot package</description>
+  <description>The tams_ur5_turtlebot_delivery_turtlebot package</description>
 
   <maintainer email="0rokita@informatik.uni-hamburg.de">0rokita</maintainer>
   <author email="0rokita@informatik.uni-hamburg.de">0rokita</author>

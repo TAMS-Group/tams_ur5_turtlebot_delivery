@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(project15_turtlebot)
+project(tams_ur5_turtlebot_delivery_turtlebot)
 
 find_package(catkin REQUIRED COMPONENTS message_generation std_msgs geometry_msgs)
 

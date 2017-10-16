@@ -3,7 +3,7 @@ __author__ = '0rokita'
 
 import rospy
 
-from project15_turtlebot.msg import OnlineTurtle
+from tams_ur5_turtlebot_delivery_turtlebot.msg import OnlineTurtle
 import os
 class TurtleAnnounce(object):
     def __init__(self):
